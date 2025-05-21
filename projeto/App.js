@@ -1,13 +1,15 @@
-// Importações de tags e funções
-import { StyleSheet, Text, View } from 'react-native';
+// Importações dos componentes
+import { StyleSheet, Text, View, Image } from 'react-native';
 
+const img = require("./assets/gato.jpg")
 // Função padrão
 export default function HomeScreen() {
   return (
     // Denominando View como "container" para estilização
     // Denominando Text como "title" para estilização
     <View style={styles.container}>
-      <Text style={styles.title}>Hello World!</Text>
+      <Text style={styles.titulo}>Hello World!</Text>
+      <Image source={img} />
     </View>
   );
 }
@@ -20,9 +22,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
+  titulo: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "blue",
   }
 });
