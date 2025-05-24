@@ -7,6 +7,7 @@ import * as Animatable from 'react-native-animatable'
 import { useNavigation} from '@react-navigation/native'
 
 export default function BemVindo() {
+    
     const navigator = useNavigation();
 
     return (
@@ -33,6 +34,11 @@ export default function BemVindo() {
                 onPress={ () => navigator.navigate('SignIn')}
                 >
                     <Text style={styles.buttonText}>Acessar</Text>
+                    <Image 
+                    source={require('../../assets/seta_direita.png')}
+                    style={{width: 30, height: 30, marginLeft: 8}}
+                    resizeMode='contain'
+                    />
                 </TouchableOpacity>
             </Animatable.View>
         </View>
@@ -69,6 +75,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     button:{
+        flexDirection: 'row',
         position: 'absolute',
         backgroundColor: '#006C9E',
         borderRadius: 50,
