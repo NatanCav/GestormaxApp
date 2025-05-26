@@ -3,6 +3,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import BemVindo from '../pages/BemVindo'
 import SignIn from '../pages/SignIn'
 import PrincipalMenu from '../pages/PrincipalMenu'
+import Clientes from '../pages/Cliente'
+import Produtos from '../pages/Produtos'
+import CadastroCliente from '../pages/CadastroCliente'
+
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +30,25 @@ export default function Rotas(){
             component={PrincipalMenu}
             options={{headerShown: false}}
             />
+
+            <Stack.Screen
+            name="Clientes"
+            component={Clientes}
+            options={{headerShown: false}}
+            />
+
+            <Stack.Screen
+            name="CadastroCliente"
+            component={CadastroCliente}
+            options={{headerShown: false}}
+            />
+
+            <Stack.Screen
+            name="Produtos"
+            component={Produtos}
+            options={{headerShown: false}}
+            />
+
         </Stack.Navigator>
     )
 }

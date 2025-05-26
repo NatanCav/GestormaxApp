@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, Image , StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
-import * as Animatable from 'react-native-animatable'
-import { useNavigation} from '@react-navigation/native'
+import * as Animatable from 'react-native-animatable';
+import { useNavigation} from '@react-navigation/native';
 
 export default function SignIn() {
 
