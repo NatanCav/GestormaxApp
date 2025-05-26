@@ -1,80 +1,158 @@
-import React from 'react'
-import {  View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView} from 'react-native'
+import React from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export default function CadastroCliente(){
-    return(
- <ScrollView style={styles.container}>
-      <Text style={styles.header}>Adicionar cliente</Text>
-      
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Nome</Text>
-        <TextInput style={styles.input} placeholder="Nome completo" />
-        
-        <TextInput style={styles.input} placeholder="Endereço" />
-        <TextInput style={styles.input} placeholder="E-mail" keyboardType="email-address" />
-        <TextInput style={styles.input} placeholder="Telefone" keyboardType="phone-pad" />
-        <TextInput style={styles.input} placeholder="NIF" keyboardType="numeric" />
-      </View>
-      
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Detalhes bancários</Text>
-        <TextInput style={styles.input} placeholder="Notas" multiline />
-        <TextInput style={styles.input} placeholder="Desconto (%)" keyboardType="numeric" />
-        <TextInput style={styles.input} placeholder="0,00" keyboardType="numeric" />
-      </View>
-      
-      <TouchableOpacity style={styles.hideButton}>
-        <Text style={styles.hideButtonText}>Ocultar</Text>
-      </TouchableOpacity>
-    </ScrollView>
+export default function CadastroCliente({ navigation }) {
+    return (
+        <LinearGradient
+            colors={['#0C4B8E', '#116EB0']}
+            style={styles.container}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+        >
+            {/* Cabeçalho com botão de voltar */}
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <MaterialIcons name="arrow-back" size={28} color="white" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Adicionar Cliente</Text>
+                <View style={{ width: 28 }} /> {/* Espaço para alinhamento */}
+            </View>
+
+            {/* Corpo do formulário */}
+            <ScrollView contentContainerStyle={styles.formContainer}>
+                <View style={styles.content}>
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Informações Pessoais</Text>
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Nome completo" 
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Endereço" 
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="E-mail" 
+                            keyboardType="email-address"
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Telefone" 
+                            keyboardType="phone-pad"
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="NIF" 
+                            keyboardType="numeric"
+                            placeholderTextColor="#999"
+                        />
+                    </View>
+                    
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Detalhes Bancários</Text>
+                        <TextInput 
+                            style={[styles.input, { height: 80 }]} 
+                            placeholder="Notas" 
+                            multiline 
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Desconto (%)" 
+                            keyboardType="numeric"
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="0,00" 
+                            keyboardType="numeric"
+                            placeholderTextColor="#999"
+                        />
+                    </View>
+                    
+                    <TouchableOpacity style={styles.saveButton}>
+                        <Text style={styles.saveButtonText}>Salvar Cliente</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  header: {
-    marginTop: 25,
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1E88E5',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  section: {
-    marginBottom: 25,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    paddingBottom: 15,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1E88E5',
-    marginBottom: 15,
-  },
-  input: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 5,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  hideButton: {
-    backgroundColor: '#1E88E5',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  hideButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+    container: {
+        flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 20,
+        paddingTop: 40,
+    },
+    backButton: {
+        padding: 5,
+    },
+    headerTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    formContainer: {
+        flexGrow: 1,
+    },
+    content: {
+        backgroundColor: 'white',
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        padding: 20,
+        paddingTop: 30,
+        minHeight: '100%',
+    },
+    section: {
+        marginBottom: 25,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
+        paddingBottom: 15,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#116EB0',
+        marginBottom: 15,
+    },
+    input: {
+        backgroundColor: '#F5F5F5',
+        borderRadius: 10,
+        padding: 15,
+        marginBottom: 15,
+        fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        color: '#333',
+    },
+    saveButton: {
+        backgroundColor: '#116EB0',
+        padding: 18,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+    },
+    saveButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 18,
+    },
 });
