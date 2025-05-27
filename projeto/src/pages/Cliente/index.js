@@ -8,10 +8,47 @@ import { useNavigation} from '@react-navigation/native';
 
 export default function ClientesScreen({ navigation }) {
   const clientes = [
-    { id: 1, nome: 'Fulano', telefone: '(11) 9999-9999' },
-    { id: 2, nome: 'Ciclano', telefone: '(11) 8888-8888' },
-    { id: 3, nome: 'Beltrano', telefone: '(11) 7777-7777' },
+    { id: 1, nome: 'Fulano', telefone: '(11) 9999-9999', cpf: '12345678900' },
+    { id: 2, nome: 'Ciclano', telefone: '(11) 8888-8888', cpf: '31345676920' },
+    { id: 3, nome: 'Beltrano', telefone: '(11) 7777-7777', cpf: '66645658902' },
   ];
+
+  // Função para navegar para edição
+  const handleEditarCliente = (cliente) => {
+    navigation.navigate('CadastroCliente', { 
+      clienteExistente: cliente,
+      onSalvar: (clienteAtualizado) => {
+        // Atualiza a lista de clientes
+        setClientes(clientes.map(c => 
+          c.id === clienteAtualizado.id ? clienteAtualizado : c
+        ));
+      }
+    });
+  };
+
+    // Função para adicionar novo cliente
+  const handleNovoCliente = () => {
+    navigation.navigate('CadastroCliente', {
+      onSalvar: (novoCliente) => {
+        setClientes([...clientes, { ...novoCliente, id: Date.now() }]);
+      }
+    });
+  };
+
+  // Função para deletar cliente
+  const handleDeletarCliente = (id) => {
+    Alert.alert(
+      'Confirmar',
+      'Deseja realmente excluir este cliente?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Excluir', 
+          onPress: () => setClientes(clientes.filter(c => c.id !== id))
+        }
+      ]
+    );
+  };
 
   return (
     <LinearGradient
@@ -40,7 +77,12 @@ export default function ClientesScreen({ navigation }) {
                 <Text style={styles.clienteNome}>{cliente.nome}</Text>
                 <Text style={styles.clienteTelefone}>{cliente.telefone}</Text>
               </View>
-              <TouchableOpacity style={styles.clienteAction}>
+              <TouchableOpacity 
+              style={styles.clienteAction}
+              onPress={() => navigation.navigate('CadastroCliente', { 
+              clienteExistente: cliente 
+              })}
+              >
                 <MaterialIcons name="edit" size={22} color="#116EB0" />
               </TouchableOpacity>
             </View>

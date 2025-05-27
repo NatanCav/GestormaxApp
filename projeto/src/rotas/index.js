@@ -1,11 +1,13 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import BemVindo from '../pages/BemVindo'
 import SignIn from '../pages/SignIn'
 import PrincipalMenu from '../pages/PrincipalMenu'
-import Clientes from '../pages/Cliente'
 import Produtos from '../pages/Produtos'
 import CadastroCliente from '../pages/CadastroCliente'
+import ClientesScreen from '../pages/Cliente'
 
 
 const Stack = createNativeStackNavigator();
@@ -32,15 +34,32 @@ export default function Rotas(){
             />
 
             <Stack.Screen
-            name="Clientes"
-            component={Clientes}
-            options={{headerShown: false}}
+                name="Clientes"
+                component={ClientesScreen}
+                options={{ headerShown: false }}
             />
 
             <Stack.Screen
-            name="CadastroCliente"
-            component={CadastroCliente}
-            options={{headerShown: false}}
+                name="CadastroCliente"
+                component={CadastroCliente}
+                options={({ navigation }) => ({
+                    headerShown: true,
+                    title: 'Cadastro de Cliente',
+                    headerStyle: {
+                        backgroundColor: '#0C4B8E',
+                    },
+                    headerTintColor: '#fff',
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <MaterialIcons 
+                                name="arrow-back" 
+                                size={24} 
+                                color="white" 
+                                style={{ marginLeft: 15 }}
+                            />
+                        </TouchableOpacity>
+                    )
+                })}
             />
 
             <Stack.Screen

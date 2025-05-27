@@ -1,9 +1,42 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function CadastroCliente({ navigation }) {
+export default function CadastroCliente({ route, navigation }) {
+
+    // Se receber um clienteExistente, é modo edição. Se não, é cadastro novo.
+  const { clienteExistente } = route.params || {};
+  
+  // Estados dos campos
+  const [nome, setNome] = useState(clienteExistente?.nome || '');
+  const [telefone, setTelefone] = useState(clienteExistente?.telefone || '');
+  const [cpf, setCpf] = useState(clienteExistente?.cpf || '');
+
+  // Atualiza título da navegação
+  useEffect(() => {
+    navigation.setOptions({
+      title: route.params?.clienteExistente 
+      ? 'Editar Cliente' 
+      : 'Novo Cliente'
+    });
+  }, [route.params?.clienteExistente]);
+
+  const handleSalvar = () => {
+    const clienteData = { nome, telefone, cpf, endereço, email };
+    
+    if (route.params?.clienteExistente) {
+      // Lógica para ATUALIZAR (PUT)
+      console.log('Atualizando cliente:', route.params.clienteExistente.id, clienteData);
+    } else {
+      // Lógica para CADASTRAR (POST)
+      console.log('Cadastrando novo cliente:', clienteData);
+    }
+    
+    navigation.goBack();
+  };
+
+    
     return (
         <LinearGradient
             colors={['#0C4B8E', '#116EB0']}
@@ -49,7 +82,7 @@ export default function CadastroCliente({ navigation }) {
                         />
                         <TextInput 
                             style={styles.input} 
-                            placeholder="NIF" 
+                            placeholder="CPF" 
                             keyboardType="numeric"
                             placeholderTextColor="#999"
                         />
@@ -66,12 +99,6 @@ export default function CadastroCliente({ navigation }) {
                         <TextInput 
                             style={styles.input} 
                             placeholder="Desconto (%)" 
-                            keyboardType="numeric"
-                            placeholderTextColor="#999"
-                        />
-                        <TextInput 
-                            style={styles.input} 
-                            placeholder="0,00" 
                             keyboardType="numeric"
                             placeholderTextColor="#999"
                         />
