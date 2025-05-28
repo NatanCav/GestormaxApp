@@ -5,10 +5,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import BemVindo from '../pages/BemVindo'
 import SignIn from '../pages/SignIn'
 import PrincipalMenu from '../pages/PrincipalMenu'
-import Produtos from '../pages/Produtos'
+import Produtos from '../pages/Produto'
 import CadastroCliente from '../pages/CadastroCliente'
 import ClientesScreen from '../pages/Cliente'
-import CadastroProduto from '../pages/CadastroProdutos';
+import CadastroProduto from '../pages/CadastroProduto';
+import FornecedoresScreen from '../pages/Fornecedor';
 
 
 const Stack = createNativeStackNavigator();
@@ -72,6 +73,12 @@ export default function Rotas(){
             <Stack.Screen
             name="CadastroProduto"
             component={CadastroProduto}
+            options={{headerShown: false}}
+            />
+
+            <Stack.Screen
+            name="Fornecedores"
+            component={FornecedoresScreen}
             options={{headerShown: false}}
             />
 
