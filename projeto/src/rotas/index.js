@@ -10,6 +10,7 @@ import CadastroCliente from '../pages/CadastroCliente'
 import ClientesScreen from '../pages/Cliente'
 import CadastroProduto from '../pages/CadastroProduto';
 import FornecedoresScreen from '../pages/Fornecedor';
+import CadastroFornecedor from '../pages/CadastroFornecedor';
 
 
 const Stack = createNativeStackNavigator();
@@ -81,6 +82,13 @@ export default function Rotas(){
             component={FornecedoresScreen}
             options={{headerShown: false}}
             />
+
+            <Stack.Screen
+            name="CadastroFornecedor" 
+            component={CadastroFornecedor}
+            options={{ headerShown: false }}
+            />
+
 
         </Stack.Navigator>
     )

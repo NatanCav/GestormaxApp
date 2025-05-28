@@ -36,7 +36,7 @@ const InputField = ({ label, value, onChangeText, iconName, keyboardType = 'defa
   </View>
 );
 
-export default function CadastroFornecedorScreen({ navigation }) {
+export default function CadastroFornecedor({ navigation }) {
   const [nome, setNome] = useState('');
   const [endereco, setEndereco] = useState('');
   const [email, setEmail] = useState('');
