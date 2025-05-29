@@ -12,6 +12,8 @@ export default function CadastroCliente({ route, navigation }) {
   const [nome, setNome] = useState(clienteExistente?.nome || '');
   const [telefone, setTelefone] = useState(clienteExistente?.telefone || '');
   const [cpf, setCpf] = useState(clienteExistente?.cpf || '');
+  const [endereco, setEndereco] = useState(clienteExistente?.endereco || '');
+  const [email, setEmail] = useState(clienteExistente?.email || '');
 
   // Atualiza título da navegação
   useEffect(() => {
@@ -88,21 +90,6 @@ export default function CadastroCliente({ route, navigation }) {
                         />
                     </View>
                     
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Detalhes Bancários</Text>
-                        <TextInput 
-                            style={[styles.input, { height: 80 }]} 
-                            placeholder="Notas" 
-                            multiline 
-                            placeholderTextColor="#999"
-                        />
-                        <TextInput 
-                            style={styles.input} 
-                            placeholder="Desconto (%)" 
-                            keyboardType="numeric"
-                            placeholderTextColor="#999"
-                        />
-                    </View>
                     
                     <TouchableOpacity style={styles.saveButton}>
                         <Text style={styles.saveButtonText}>Salvar Cliente</Text>

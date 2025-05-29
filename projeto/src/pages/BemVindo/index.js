@@ -1,94 +1,135 @@
-
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-
-import * as Animatable from 'react-native-animatable'
-
-import { useNavigation} from '@react-navigation/native'
+import * as Animatable from 'react-native-animatable';
+import { useNavigation } from '@react-navigation/native';
 
 export default function BemVindo() {
-    
     const navigator = useNavigation();
 
     return (
         <View style={styles.container}>
-            <View style={styles.containerLogo}>
-                <Animatable.Image
+        {/* Seção Superior (Logo e Nome) */}
+        <View style={styles.logoContainer}>
+            <Animatable.Image
                 animation="flipInY"
-                  source={require('../../assets/logo.png')}
-                  style={{width: '100%'}}
-                  resizeMode='contain'
-                />
-            </View>
-
-            <Animatable.View
-            delay={600}
-            animation="fadeInUp" 
-            style={styles.containerForm}>
-
-                <Text style={styles.title}>Cadastro, pedido, estoque. Tudo fácil.</Text>
-                <Text style={styles.text}>Faça o login para começar</Text>
-
-                <TouchableOpacity 
-                style={styles.button}
-                onPress={ () => navigator.navigate('SignIn')}
-                >
-                    <Text style={styles.buttonText}>Acessar</Text>
-                    <Image 
-                    source={require('../../assets/seta_direita.png')}
-                    style={{width: 30, height: 30, marginLeft: 8}}
-                    resizeMode='contain'
-                    />
-                </TouchableOpacity>
-            </Animatable.View>
+                duration={1500} // Aumentei um pouco a duração para ser mais perceptível
+                source={require('../../assets/logo.png')} // Substitua pelo caminho CORRETO da sua log
+                style={styles.logoImage}
+                resizeMode="contain"
+            />
+            <Animatable.Text
+                animation="fadeInUp"
+                duration={1000}
+                delay={800}
+                style={styles.appName}
+            >
+                GESTORMAX
+            </Animatable.Text>
         </View>
+
+        {/* Seção Inferior (Texto e Botão) */}
+        <Animatable.View
+            style={styles.contentContainer}
+            animation="fadeInUp"
+            duration={1000}
+            delay={1200}
+        >
+            <Text style={styles.title}>Cadastro, pedido, estoque.</Text>
+            <Text style={styles.subtitle}>Tudo fácil.</Text>
+            <Text style={styles.description}>Faça login para começar</Text>
+
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigator.navigate('SignIn')} // Verifique a rota 'SignIn'
+            >
+                <Text style={styles.buttonText}>Acessar</Text>
+                <Image
+                    source={require('../../assets/seta_direita.png')} // Substitua pelo caminho CORRETO da sua seta branca
+                    style={styles.buttonArrow}
+                    resizeMode="contain"
+                />
+            </TouchableOpacity>
+        </Animatable.View>
+    </View>
+
     );
 }
 
 const styles = StyleSheet.create({
-    container:{
-        backgroundColor: '#116EB0',
+    container: {
         flex: 1,
+        backgroundColor: '#116EB0', // Cor de fundo principal
+        justifyContent: 'space-between', // Distribui o espaço entre as seções
     },
-    containerLogo: {
-        flex: 2,
-        backgroundColor: '#116EB0',
-        justifyContent: 'center',
-        alignItems: 'center',
+    logoContainer: {
+        flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     },
-    containerForm:{
-        flex:1.2,
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
-        paddingStart: '5%',
-        paddingEnd:'5%',
+    logoImage: {
+        width: '90%', // Ajuste o tamanho da logo
+    maxHeight: '60%',
     },
-    title:{
-        fontSize: 26,
+    appName: {
+        fontSize: 40, // Nome do app maior
         fontWeight: 'bold',
-        marginTop: 28,
-        marginBottom: 12,
+        color: '#FFFFFF',
+        marginTop: 30, // Mais espaço abaixo da logo
+        textAlign: 'center',
+        letterSpacing: 1.5, // Espaçamento entre letras para um toque moderno
     },
-    text:{
-        color: '#a1a1a1',
-        fontSize: 18,
-    },
-    button:{
-        flexDirection: 'row',
-        position: 'absolute',
-        backgroundColor: '#006C9E',
-        borderRadius: 50,
-        paddingVertical: 10,
-        width: '80%',
-        alignSelf: 'center',
-        bottom: '20%',
+    contentContainer: {
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingHorizontal: '8%',
+        paddingTop: 50,
+        paddingBottom: 80, // Mais espaço na parte inferior
         alignItems: 'center',
-        justifyContent: 'center'
     },
-    buttonText:{
-        fontSize: 20,
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 5,
+    },
+    subtitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 15,
+    },
+    description: {
+        fontSize: 16,
+        color: '#777',
+        textAlign: 'center',
+        marginBottom: 40,
+    },
+    button: {
+        flexDirection: 'row',
+        backgroundColor: '#007BFF', // Um azul um pouco mais vibrante para o botão
+        borderRadius: 50,
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: '70%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 6,
+    },
+    buttonText: {
+        fontSize: 18,
         color: '#fff',
         fontWeight: 'bold',
-    }
-})
+        marginRight: 10,
+    },
+    buttonArrow: {
+        width: 24,
+        height: 24,
+    },
+});
