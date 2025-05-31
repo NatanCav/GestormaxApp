@@ -9,7 +9,7 @@ export default function MenuPrincipal({ navigation }) {
     { title: 'Vendedores', icon: 'person' },
     { title: 'Fornecedores', icon: 'local-shipping' },
     { title: 'Produtos', icon: 'shopping-basket' },
-    { title: 'Movimentação', icon: 'swap-horiz' },
+    { title: 'Movimentações', icon: 'swap-horiz' },
     { title: 'Relatórios', icon: 'assessment' },
   ];
 

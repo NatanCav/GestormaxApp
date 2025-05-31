@@ -21,43 +21,42 @@ const MOCK_MOVIMENTACOES = [
     id: 'mov1',
     tipo: 'entrada', // 'entrada' ou 'saida'
     data: '30/05/2024',
-    produtoNome: 'Componente Alpha MK2',
-    fornecedorNome: 'Fornecedor Global Peças',
+    produtoNome: 'Vodka',
+    fornecedorNome: 'Aluízio Bebidas',
     quantidade: 100,
-    valorTotal: 2500.75,
-    observacao: 'Reposição de estoque para produção.'
+    valorTotal: 1500,
+    observacao: 'Reposição de estoque.'
   },
   {
     id: 'mov2',
     tipo: 'saida',
     data: '31/05/2024',
     pedidoId: 'PED-2024-00123',
-    clienteNome: 'Indústria Delta S.A.',
+    clienteNome: 'Pinga Indústria',
     vendedorNome: 'Mariana Silva',
-    itensDescricao: ['Componente Alpha MK2 (50 un)', 'Peça Beta (20 un)'],
-    valorTotal: 1850.00,
+    itensDescricao: ['Vodka (50 un)', 'Pitu (20 un)'],
+    valorTotal: 950.00,
     observacao: 'Pedido urgente para cliente prioritário.'
   },
   {
     id: 'mov3',
     tipo: 'entrada',
     data: '01/06/2024',
-    produtoNome: 'Matéria Prima Gama',
+    produtoNome: 'Mochila tática',
     fornecedorNome: 'Distribuidora Central',
-    quantidade: 500, // Ex: kg
-    unidade: 'kg',
+    quantidade: 20,
     valorTotal: 780.50,
-    observacao: 'Compra para novo lote de produção.'
+    observacao: 'Reposição de estoque'
   },
    {
     id: 'mov4',
     tipo: 'saida',
     data: '02/06/2024',
     pedidoId: 'PED-2024-00124',
-    clienteNome: 'Oficina Mecânica J.P.',
+    clienteNome: 'Jonas Oliveira.',
     vendedorNome: 'Ricardo Alves',
-    itensDescricao: ['Peça Beta (10 un)'],
-    valorTotal: 320.00,
+    itensDescricao: ['Pitu (10 un)'],
+    valorTotal: 100.00,
     observacao: 'Venda balcão.'
   },
 ];
@@ -88,7 +87,7 @@ const MovimentacaoCard = ({ movimentacao, onPress }) => {
           <Text style={styles.cardSubtitulo}>Fornecedor: <Text style={styles.cardSubtituloDestaque}>{movimentacao.fornecedorNome}</Text></Text>
           <View style={styles.detalhesValorContainer}>
             <Text style={styles.cardLabel}>
-              Qtde: <Text style={styles.cardValorDestaque}>{movimentacao.quantidade} {movimentacao.unidade || 'un'}</Text>
+              Qtde: <Text style={styles.cardValorDestaque}>{movimentacao.quantidade}</Text>
             </Text>
             <Text style={styles.cardValorPrincipalEntrada}>
               Valor: R$ {movimentacao.valorTotal.toFixed(2).replace('.', ',')}
@@ -126,6 +125,7 @@ const ListaVaziaComponente = ({ tipoFiltro }) => (
 
 // Tela Principal de Movimentações
 export default function MovimentacoesScreen({ navigation }) {
+
   const [filtroSelecionado, setFiltroSelecionado] = useState('entrada'); // 'entrada' ou 'saida'
   const [movimentacoes, setMovimentacoes] = useState(MOCK_MOVIMENTACOES); // Estado para todas as movimentações
   const [movimentacoesFiltradas, setMovimentacoesFiltradas] = useState([]); // Estado para movimentações após filtro
