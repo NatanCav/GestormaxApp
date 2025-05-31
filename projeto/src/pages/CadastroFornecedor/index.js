@@ -39,7 +39,6 @@ const InputField = ({ label, value, onChangeText, iconName, keyboardType = 'defa
 export default function CadastroFornecedor({ navigation }) {
   const [nome, setNome] = useState('');
   const [endereco, setEndereco] = useState('');
-  const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
   const [cnpj, setCnpj] = useState(''); 
 
@@ -50,12 +49,12 @@ export default function CadastroFornecedor({ navigation }) {
   const handleSave = () => {
     // Validar dados (exemplo básico)
     if (!nome.trim() || !email.trim()) {
-        Alert.alert("Erro", "Nome e E-mail são obrigatórios.");
+        Alert.alert("Erro", "Nome são obrigatórios.");
         return;
     }
 
     // Coleta os dados atualizados
-    const fornecedorData = { nome, endereco, email, telefone, cnpj };
+    const fornecedorData = { nome, endereco, telefone, cnpj };
     console.log("Salvar Fornecedor:", fornecedorData);
 
     // TODO: Chamar API para salvar no backend
@@ -83,20 +82,41 @@ export default function CadastroFornecedor({ navigation }) {
         </TouchableOpacity>
       </LinearGradient>
 
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <ScrollView style={styles.container}>
-            {/* --- Campos do formulário Atualizados --- */}
-            <InputField label="Nome" value={nome} onChangeText={setNome} iconName="person-outline" />
-            <InputField label="Endereço" value={endereco} onChangeText={setEndereco} iconName="map-outline" />
-            <InputField label="E-mail" value={email} onChangeText={setEmail} iconName="mail-outline" keyboardType="email-address" />
-            <InputField label="Telefone" value={telefone} onChangeText={setTelefone} iconName="call-outline" keyboardType="phone-pad" />
-            <InputField label="CNPJ" value={cnpj} onChangeText={setCnpj} iconName="document-text-outline" keyboardType="numeric" />
+            <ScrollView contentContainerStyle={styles.formContainer}>
+                <View style={styles.content}>
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Informações do Fornecedor</Text>
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Nome" 
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Endereço" 
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Telefone" 
+                            keyboardType="phone-pad"
+                            placeholderTextColor="#999"
+                        />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="CPF" 
+                            keyboardType="numeric"
+                            placeholderTextColor="#999"
+                        />
+                    </View>
 
-            {/* Espaço extra no final para não colar na barra de navegação */}
-            <View style={{ height: 50 }} />
+                    <TouchableOpacity style={styles.saveButton}>
+                      <Text style={styles.saveButtonText}>Salvar Fornecedor</Text>
+                    </TouchableOpacity>
 
-          </ScrollView>
-      </TouchableWithoutFeedback>
+                </View>
+                
+            </ScrollView>
     </SafeAreaView>
   );
 }
@@ -119,32 +139,54 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  container: {
-    flex: 1,
-    paddingHorizontal: 25,
-    paddingTop: 20,
-    backgroundColor: '#FFFFFF',
+  formContainer: {
+    flexGrow: 1,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: solidBlue, // Linha azul
-    marginBottom: 30,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 15,
-    fontSize: 17,
-    color: '#333333',
-    height: 50,
-  },
-  inputMultiline: { // Mantido caso precise de multiline em outro campo futuro
-      height: 100,
-      textAlignVertical: 'top',
-      paddingTop: 15,
-  },
-  inputIcon: {
-    marginLeft: 10,
-  },
+content: {
+        backgroundColor: 'white',
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        padding: 20,
+        paddingTop: 30,
+        minHeight: '100%',
+    },
+    section: {
+        marginBottom: 25,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
+        paddingBottom: 15,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#116EB0',
+        marginBottom: 15,
+    },
+    input: {
+        backgroundColor: '#F5F5F5',
+        borderRadius: 10,
+        padding: 15,
+        marginBottom: 15,
+        fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        color: '#333',
+    },
+        saveButton: {
+        backgroundColor: '#116EB0',
+        padding: 18,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+    },
+    saveButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 18,
+    },
 });

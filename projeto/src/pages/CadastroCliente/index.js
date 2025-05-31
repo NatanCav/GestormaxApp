@@ -13,7 +13,6 @@ export default function CadastroCliente({ route, navigation }) {
   const [telefone, setTelefone] = useState(clienteExistente?.telefone || '');
   const [cpf, setCpf] = useState(clienteExistente?.cpf || '');
   const [endereco, setEndereco] = useState(clienteExistente?.endereco || '');
-  const [email, setEmail] = useState(clienteExistente?.email || '');
 
   // Atualiza título da navegação
   useEffect(() => {
@@ -25,7 +24,7 @@ export default function CadastroCliente({ route, navigation }) {
   }, [route.params?.clienteExistente]);
 
   const handleSalvar = () => {
-    const clienteData = { nome, telefone, cpf, endereço, email };
+    const clienteData = { nome, telefone, cpf, endereço };
     
     if (route.params?.clienteExistente) {
       // Lógica para ATUALIZAR (PUT)
@@ -72,12 +71,6 @@ export default function CadastroCliente({ route, navigation }) {
                         />
                         <TextInput 
                             style={styles.input} 
-                            placeholder="E-mail" 
-                            keyboardType="email-address"
-                            placeholderTextColor="#999"
-                        />
-                        <TextInput 
-                            style={styles.input} 
                             placeholder="Telefone" 
                             keyboardType="phone-pad"
                             placeholderTextColor="#999"
@@ -109,7 +102,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 20,
-        paddingTop: 40,
+        paddingTop: 20,
     },
     backButton: {
         padding: 5,

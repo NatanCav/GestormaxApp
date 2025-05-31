@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +7,7 @@ import { useNavigation} from '@react-navigation/native';
 
 
 export default function ClientesScreen({ navigation }) {
+  const [searchText, setSearchText] = useState('');
   const clientes = [
     { id: 1, nome: 'Fulano', telefone: '(11) 9999-9999', cpf: '12345678900' },
     { id: 2, nome: 'Ciclano', telefone: '(11) 8888-8888', cpf: '31345676920' },
@@ -69,6 +70,22 @@ export default function ClientesScreen({ navigation }) {
       {/* Corpo principal */}
       <View style={styles.content}>
         <Text style={styles.subHeader}>Loja Principal</Text>
+
+                <View style={styles.searchContainer}>
+                    <MaterialIcons
+                        name="search"
+                        size={20}
+                        color="#666"
+                        style={styles.searchIcon}
+                    />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Pesquisar por nome ou código..."
+                        placeholderTextColor="#999"
+                        value={searchText}
+                        onChangeText={setSearchText}
+                    />
+                </View>
         
         <ScrollView style={styles.clientesContainer}>
           {clientes.map(cliente => (
@@ -87,6 +104,7 @@ export default function ClientesScreen({ navigation }) {
               </TouchableOpacity>
             </View>
           ))}
+          
         </ScrollView>
 
         {/* Botão de ação */}
@@ -118,6 +136,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
+      searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F5F5F5',
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        marginBottom: 20,
+    },
+    searchIcon: {
+        marginRight: 10,
+    },
+    searchInput: {
+        flex: 1,
+        height: 45,
+        color: '#333',
+        fontSize: 16,
+    },
   content: {
     flex: 1,
     backgroundColor: 'white',
@@ -165,7 +200,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#116EB0',
     borderRadius: 10,
     padding: 15,
-    marginTop: 10,
+    marginTop: 20,
+    marginBottom: 20,
   },
   addButtonText: {
     color: 'white',

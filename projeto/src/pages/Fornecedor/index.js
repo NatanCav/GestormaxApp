@@ -7,8 +7,10 @@ import {
   StyleSheet,
   SafeAreaView,
   FlatList,
+  Alert,
+  Platform // Added Platform import
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // Define as cores do gradiente e a cor sólida
@@ -17,30 +19,36 @@ const solidBlue = '#116EB0';
 
 // Dados de exemplo (mock)
 const MOCK_SUPPLIERS = [
-  { id: '1', name: 'Fornecedor Alpha Ltda.' },
-  { id: '2', name: 'Distribuidora Beta S.A.' },
+  { id: '1', name: 'Fornecedor Alpha Ltda.', contact: 'contato@alpha.com' },
+  { id: '2', name: 'Distribuidora Beta S.A.', contact: 'vendas@beta.com' },
+  { id: '3', name: 'Importadora Gama e Filhos', contact: 'comercial@gama.com.br' },
 ];
 
-// Componente para o item da lista
-const SupplierItem = ({ name, onPress }) => (
-  <TouchableOpacity style={styles.itemContainer} onPress={onPress}>
-    <Ionicons name="business-outline" size={24} color={solidBlue} style={styles.itemIcon} />
-    <Text style={styles.itemText}>{name}</Text>
-    <Ionicons name="chevron-forward" size={24} color="#B0B0B0" />
+// Componente para o item da lista (FornecedorCard)
+const FornecedorCard = ({ name, contact, onPress }) => (
+  <TouchableOpacity style={styles.cardContainer} onPress={onPress}>
+    <View style={styles.cardInfo}>
+      <MaterialIcons name="business" size={24} color={solidBlue} style={styles.cardIcon} />
+      <View>
+        <Text style={styles.cardName}>{name}</Text>
+        {contact && <Text style={styles.cardContact}>{contact}</Text>}
+      </View>
+    </View>
+    <MaterialIcons name="chevron-right" size={24} color="#B0B0B0" />
   </TouchableOpacity>
 );
 
 // Componente para o estado vazio
 const EmptyListComponent = () => (
   <View style={styles.emptyContainer}>
-    <Ionicons name="people-outline" size={100} color="#D0D0D0" />
+    <MaterialIcons name="storefront" size={100} color="#D0D0D0" />
     <Text style={styles.emptyText}>Nenhum fornecedor encontrado.</Text>
-    <Text style={styles.emptySubText}>Toque no botão '+' para adicionar o primeiro!</Text>
+    <Text style={styles.emptySubText}>Toque no botão 'Novo Fornecedor' para adicionar o primeiro!</Text>
   </View>
 );
 
 
-export default function FornecedoresScreen({ navigation }) { // Recebe navigation
+export default function FornecedoresScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [suppliers, setSuppliers] = useState(MOCK_SUPPLIERS);
   const [filteredSuppliers, setFilteredSuppliers] = useState(MOCK_SUPPLIERS);
@@ -50,197 +58,194 @@ export default function FornecedoresScreen({ navigation }) { // Recebe navigatio
       setFilteredSuppliers(suppliers);
     } else {
       const filtered = suppliers.filter(supplier =>
-        supplier.name.toLowerCase().includes(searchQuery.toLowerCase())
+        supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (supplier.contact && supplier.contact.toLowerCase().includes(searchQuery.toLowerCase()))
       );
       setFilteredSuppliers(filtered);
     }
   }, [searchQuery, suppliers]);
 
-  // Função para voltar
   const handleGoBack = () => {
-      navigation.goBack();
+    navigation.goBack();
   };
 
   const handleAddSupplier = () => {
-    // Navega para a tela de CadastroFornecedorScreen
-    navigation.navigate('CadastroFornecedor');
+    navigation.navigate('CadastroFornecedor', {
+        onSalvar: (novoFornecedor) => {
+            setSuppliers(prev => [...prev, { ...novoFornecedor, id: String(Date.now()) }]);
+        }
+    });
   };
 
   const handleSupplierPress = (supplier) => {
-      console.log("Ver detalhes do fornecedor:", supplier.name);
-      // Ex: navigation.navigate('DetalhesFornecedor', { supplierId: supplier.id });
+    console.log("Ver detalhes do fornecedor:", supplier.name);
+    navigation.navigate('CadastroFornecedor', {
+        fornecedorExistente: supplier,
+        onSalvar: (fornecedorAtualizado) => {
+            setSuppliers(prevSuppliers =>
+                prevSuppliers.map(s =>
+                    s.id === fornecedorAtualizado.id ? fornecedorAtualizado : s
+                )
+            );
+        }
+    });
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Header com Gradiente e Botão Voltar */}
+    <SafeAreaView style={{ flex: 1, backgroundColor: gradientColors[0] }}>
       <LinearGradient
         colors={gradientColors}
-        style={styles.header}
+        style={styles.gradientContainer}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        {/* Botão Voltar (Substituindo o Menu) */}
-        <TouchableOpacity onPress={handleGoBack}>
-            <Ionicons name="arrow-back" size={30} color="#FFFFFF" />
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>Fornecedores</Text>
-
-        {/* Ícone de Busca (Placeholder) */}
-        <TouchableOpacity>
-            <Ionicons name="search" size={26} color="#FFFFFF" />
-        </TouchableOpacity>
-      </LinearGradient>
-
-      {/* Container Principal */}
-      <View style={styles.container}>
-        {/* Barra de Busca */}
-        <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={20} color="#888" style={styles.searchIcon} />
-            <TextInput
-                style={styles.searchInput}
-                placeholder="Pesquisar por nome..."
-                placeholderTextColor="#A9A9A9"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-            />
-             {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
-                    <Ionicons name="close-circle" size={20} color="#888" style={styles.searchClearIcon} />
-                </TouchableOpacity>
-             )}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleGoBack}>
+            <MaterialIcons name="arrow-back" size={28} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Fornecedores</Text>
+          <View style={{ width: 28 }} />
         </View>
 
-        {/* Lista de Fornecedores */}
-        <FlatList
-          data={filteredSuppliers}
-          renderItem={({ item }) => (
-            <SupplierItem
-                name={item.name}
-                onPress={() => handleSupplierPress(item)}
+        <View style={styles.contentContainer}>
+          <View style={styles.searchSection}>
+            <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Pesquisar por nome ou contato..."
+              placeholderTextColor="#999"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
             />
-          )}
-          keyExtractor={item => item.id}
-          ListEmptyComponent={<EmptyListComponent />}
-          contentContainerStyle={{ flexGrow: 1 }}
-        />
+          </View>
 
-      </View>
+          <FlatList
+            data={filteredSuppliers}
+            renderItem={({ item }) => (
+              <FornecedorCard
+                name={item.name}
+                contact={item.contact}
+                onPress={() => handleSupplierPress(item)}
+              />
+            )}
+            keyExtractor={item => item.id}
+            ListEmptyComponent={<EmptyListComponent />}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+          />
 
-      {/* Botão Flutuante (FAB) */}
-      <TouchableOpacity style={styles.fabTouchable} onPress={handleAddSupplier}>
-          <LinearGradient
-              colors={gradientColors}
-              style={styles.fab}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-          >
-              <Ionicons name="add" size={36} color="#FFFFFF" />
-          </LinearGradient>
-      </TouchableOpacity>
-
+          <TouchableOpacity style={styles.addButton} onPress={handleAddSupplier}>
+            <MaterialIcons name="add" size={28} color="white" />
+            <Text style={styles.addButtonText}>Novo Fornecedor</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
 
-// Estilos (mantidos os mesmos da versão anterior)
 const styles = StyleSheet.create({
-  safeArea: {
+  gradientContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 15,
     paddingHorizontal: 20,
-    paddingTop: 45,
+    paddingVertical: 15,
+    paddingTop: Platform.OS === 'android' ? 25 : 15,
   },
   headerTitle: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
   },
-  container: {
+  contentContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
-  searchContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#F0F0F0',
-      borderRadius: 10,
-      margin: 15,
-      paddingHorizontal: 10,
-      borderWidth: 1,
-      borderColor: '#E0E0E0',
+  searchSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 20,
   },
   searchIcon: {
-      marginRight: 10,
+    marginRight: 10,
   },
   searchInput: {
-      flex: 1,
-      paddingVertical: 12,
-      fontSize: 16,
-      color: '#333',
+    flex: 1,
+    height: 45,
+    fontSize: 16,
+    color: '#333',
   },
-  searchClearIcon: {
-      marginLeft: 5,
+  cardContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(17, 110, 176, 0.1)',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
   },
-  itemContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 18,
-      paddingHorizontal: 20,
-      borderBottomWidth: 1,
-      borderBottomColor: '#F0F0F0',
-      backgroundColor: '#FFFFFF',
+  cardInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
-  itemIcon: {
-      marginRight: 15,
+  cardIcon: {
+    marginRight: 15,
   },
-  itemText: {
-      flex: 1,
-      fontSize: 16,
-      color: '#333333',
+  cardName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2C3E50',
+    marginBottom: 2,
+  },
+  cardContact: {
+    fontSize: 14,
+    color: '#566573',
   },
   emptyContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 20,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
   emptyText: {
-      marginTop: 20,
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#555555',
-      textAlign: 'center',
+    marginTop: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#555555',
+    textAlign: 'center',
   },
   emptySubText: {
-      marginTop: 8,
-      fontSize: 14,
-      color: '#888888',
-      textAlign: 'center',
+    marginTop: 8,
+    fontSize: 14,
+    color: '#888888',
+    textAlign: 'center',
   },
-  fabTouchable: {
-      position: 'absolute',
-      bottom: 25,
-      right: 25,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 4.65,
-      elevation: 8,
-      borderRadius: 30,
+  addButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: solidBlue,
+    borderRadius: 10,
+    padding: 15,
+    marginTop: 20,
+    marginBottom: 50,
   },
-  fab: {
-      width: 60,
-      height: 60,
-      borderRadius: 30,
-      justifyContent: 'center',
-      alignItems: 'center',
+  addButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 10,
   },
 });

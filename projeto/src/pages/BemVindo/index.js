@@ -13,18 +13,10 @@ export default function BemVindo() {
             <Animatable.Image
                 animation="flipInY"
                 duration={1500} // Aumentei um pouco a duração para ser mais perceptível
-                source={require('../../assets/logo.png')} // Substitua pelo caminho CORRETO da sua log
+                source={require('../../assets/LogoPNG.png')} // Substitua pelo caminho CORRETO da sua log
                 style={styles.logoImage}
                 resizeMode="contain"
             />
-            <Animatable.Text
-                animation="fadeInUp"
-                duration={1000}
-                delay={800}
-                style={styles.appName}
-            >
-                GESTORMAX
-            </Animatable.Text>
         </View>
 
         {/* Seção Inferior (Texto e Botão) */}
@@ -67,36 +59,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     },
     logoImage: {
-        width: '90%', // Ajuste o tamanho da logo
+        marginTop: 300,
+        width: '70%', // Ajuste o tamanho da logo
     maxHeight: '60%',
-    },
-    appName: {
-        fontSize: 40, // Nome do app maior
-        fontWeight: 'bold',
-        color: '#FFFFFF',
-        marginTop: 30, // Mais espaço abaixo da logo
-        textAlign: 'center',
-        letterSpacing: 1.5, // Espaçamento entre letras para um toque moderno
     },
     contentContainer: {
         backgroundColor: '#FFFFFF',
+        marginTop: 20,
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
         paddingHorizontal: '8%',
-        paddingTop: 50,
+        paddingTop: 60,
         paddingBottom: 80, // Mais espaço na parte inferior
         alignItems: 'center',
     },
     title: {
         fontSize: 22,
-        fontWeight: 'bold',
+        fontWeight: '600',
         color: '#333',
         textAlign: 'center',
         marginBottom: 5,
     },
     subtitle: {
         fontSize: 22,
-        fontWeight: 'bold',
+        fontWeight: '600',
         color: '#333',
         textAlign: 'center',
         marginBottom: 15,
@@ -115,7 +101,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
         alignItems: 'center',
         justifyContent: 'center',
-        minWidth: '70%',
+        minWidth: '80%',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
