@@ -104,7 +104,7 @@ export default function CadastroFornecedor({ navigation }) {
                         />
                         <TextInput 
                             style={styles.input} 
-                            placeholder="CPF" 
+                            placeholder="CNPJ" 
                             keyboardType="numeric"
                             placeholderTextColor="#999"
                         />

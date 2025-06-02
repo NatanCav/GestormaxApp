@@ -13,6 +13,8 @@ import FornecedoresScreen from '../pages/Fornecedor';
 import CadastroFornecedor from '../pages/CadastroFornecedor';
 import MovimentacoesScreen from '../pages/Movimentacao';
 import CadastroMovimentacaoScreen from '../pages/CadastroMovimentacao';
+import UsuariosScreen from '../pages/Usuario';
+import RelatoriosScreen from '../pages/Relatorio';
 
 
 const Stack = createNativeStackNavigator();
@@ -102,6 +104,19 @@ export default function Rotas(){
             component={CadastroMovimentacaoScreen}
             options={{headerShown: false}}
             />
+
+            <Stack.Screen
+            name="Usuários"
+            component={UsuariosScreen}
+            options={{headerShown: false}}
+            />
+
+            <Stack.Screen
+            name="Relatórios"
+            component={RelatoriosScreen}
+            options={{headerShown: false}}
+            />
+
 
         </Stack.Navigator>
     )

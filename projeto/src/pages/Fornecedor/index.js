@@ -19,9 +19,9 @@ const solidBlue = '#116EB0';
 
 // Dados de exemplo (mock)
 const MOCK_SUPPLIERS = [
-  { id: '1', name: 'Fornecedor Alpha Ltda.', contact: 'contato@alpha.com' },
-  { id: '2', name: 'Distribuidora Beta S.A.', contact: 'vendas@beta.com' },
-  { id: '3', name: 'Importadora Gama e Filhos', contact: 'comercial@gama.com.br' },
+  { id: '1', name: 'Fornecedor Alpha Ltda.', telefone: '(73)8565-5738' },
+  { id: '2', name: 'Distribuidora Beta S.A.', telefone: '(83)9456-3272' },
+  { id: '3', name: 'Importadora Gama e Filhos', telefone: '(81)9293-3050' },
 ];
 
 // Componente para o item da lista (FornecedorCard)

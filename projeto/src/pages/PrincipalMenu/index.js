@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 export default function MenuPrincipal({ navigation }) {
   const menuItems = [
     { title: 'Clientes', icon: 'people' },
-    { title: 'Vendedores', icon: 'person' },
+    { title: 'Usuários', icon: 'person' },
     { title: 'Fornecedores', icon: 'local-shipping' },
     { title: 'Produtos', icon: 'shopping-basket' },
     { title: 'Movimentações', icon: 'swap-horiz' },
