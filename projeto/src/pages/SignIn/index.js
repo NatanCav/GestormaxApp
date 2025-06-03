@@ -1,10 +1,50 @@
-import React from 'react';
-import { View, Text, Image , StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image , StyleSheet, TextInput, TouchableOpacity, Modal } from 'react-native';
 
+//importando axios para requisições HTTP
+import api from '../../services/api';
+
+//importando animações e navegação
 import * as Animatable from 'react-native-animatable';
 import { useNavigation} from '@react-navigation/native';
 
 export default function SignIn() {
+
+    const [email, setEmail] = useState();
+    const [senha, setSenha] = useState();
+
+    const [modalVisivel, setModalVisivel] = useState(false);
+    const [mensagemModal, setMensagemModal] = useState('');
+
+    const validarLogin = async () => {
+        if(!email || !senha || email.trim() === '' || senha.trim() === ''){
+            setMensagemModal('Por favor, preencha todos os campos!')
+            setModalVisivel(true)
+            return;
+        }
+
+        try {
+            const response = await api.get('/validar-login', {
+                params:{
+                    email: email,
+                    senha: senha
+                }
+            });
+
+            if(response.status === 200){
+                //chamar a tela home
+                console.log('Login válido')
+            } else {
+            setMensagemModal('Email ou senha incorretos!')
+            setModalVisivel(true)
+            return;
+            }
+        } catch (error) {
+           // tratamento 
+           alert('Erro servidor')
+           console.error('Não foi possível conectar. Tente novamente mais tarde.')
+        }
+    }
 
     const navigator = useNavigation();
     
@@ -31,25 +71,29 @@ export default function SignIn() {
             <Animatable.View animation="fadeInUp" style={styles.containerForm}>
                 <Text style={styles.title}>Email</Text>
                 <TextInput
-                 placeholder='Digite um email'
                  style={styles.input}
+                 onChangeText={value=>setEmail(value)}
+                 placeholder='Digite um email'
                 />
 
                 <Text style={styles.title}>Senha</Text>
                 <TextInput
-                 placeholder='Senha'
+                onChangeText=
+                {value=>setSenha(value)}
+                 placeholder='Digite sua senha'
                  style={styles.input}
+                
                 />
 
                 <TouchableOpacity 
                 style={styles.button}
-                onPress={ () => navigator.navigate('PrincipalMenu')}
+                onPress={validarLogin}
                 >
                     <Text style={styles.buttonText}>Acessar</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.buttonRegister}>
-                    <Text style={styles.registerText}>Esqueceu sua Senha?</Text>
+                    <Text style={styles.registerText}>Esqueci a Senha.</Text>
                 </TouchableOpacity>
 
             </Animatable.View>
