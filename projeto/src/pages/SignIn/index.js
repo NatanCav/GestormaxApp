@@ -32,15 +32,24 @@ export default function SignIn() {
             });
 
             if(response.status === 200){
-                //chamar a tela home
-                console.log('Login válido')
+                //chamar a tela PrincipalMenu
+                
+                console.log('Login válido, navegando para o menu principal...');
+
+                // Resetando a pilha para que o usuário não possa voltar para a tela de login
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'PrincipalMenu' }],
+                });
+
             } else {
-            setMensagemModal('Email ou senha incorretos!')
-            setModalVisivel(true)
+                // --- TRATAMENTO DE LOGIN INVÁLIDO ---
+                setMensagemModal('Email ou senha incorretos!')
+                setModalVisivel(true)
             return;
             }
         } catch (error) {
-           // tratamento 
+           // --- TRATAMENTO DE ERROS DE CONEXÃO OU AUTENTICAÇÃO ---
            alert('Erro servidor')
            console.error('Não foi possível conectar. Tente novamente mais tarde.')
         }
@@ -50,6 +59,24 @@ export default function SignIn() {
     
     return (
         <View style={styles.container}>
+            <Modal
+            animationType='fade'
+            transparent={true}
+            visible={modalVisivel}
+            onRequestClose={() => setModalVisivel(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalBox}>
+                        <Text style={styles.modalText}>{mensagemModal}</Text>
+                        <TouchableOpacity 
+                        style={styles.modalBotao}
+                        onPress={() => setModalVisivel(false)}>
+                            <Text style={{color: '#ffff'}}>Fechar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
             <Animatable.View animation={"fadeInLeft"}
             delay={500} style={styles.containerHeader}
             >
@@ -160,5 +187,29 @@ const styles = StyleSheet.create ({
     },
     registerText:{
         color: '#a1a1a1'
+    },
+    modalContainer:{
+        flex:1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,5)'
+    },
+    modalBox:{
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        width: '80%'
+    },
+    modalText:{
+        fontSize: 16,
+        marginBottom: 10,
+        borderRadius: 5,
+    },
+    modalBotao:{
+        backgroundColor: '#ee6a2t',
+        paddingVertical:10,
+        paddingHorizontal:20,
+        borderRadius:5
     }
 })
