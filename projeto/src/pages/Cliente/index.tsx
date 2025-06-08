@@ -2,25 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import api from '../../services/api'; // Ajuste o caminho conforme necessário
+import api from '../../services/api'; 
+// A importação está correta!
+import { Cliente } from '../../types'; // Se o arquivo for types.ts, não precisa do /index
 
-export default function ClientesScreen({ navigation }) {
-  // ... (estados: searchText, clientes, clientesFiltrados) ...
+// Para tipar a prop 'navigation' corretamente, vindo do seu types.ts
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types';
+
+// Tipando as props do componente
+type Props = NativeStackScreenProps<RootStackParamList, 'Clientes'>;
+
+export default function ClientesScreen({ navigation }: Props) {
   const [searchText, setSearchText] = useState('');
-  const [clientes, setClientes] = useState([]);
-  const [clientesFiltrados, setClientesFiltrados] = useState([]);
+  
+  // 1. APLIQUE O TIPO 'Cliente[]' AOS ESTADOS
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [clientesFiltrados, setClientesFiltrados] = useState<Cliente[]>([]);
 
   useEffect(() => {
-    // Função para ser chamada toda vez que a tela entra em foco
     const unsubscribe = navigation.addListener('focus', () => {
       fetchClientes();
     });
-
-    // Retorna a função de limpeza para remover o listener
     return unsubscribe;
   }, [navigation]);
 
-  // EFEITO PARA FILTRAR A LISTA
   useEffect(() => {
     if (searchText.trim() === '') {
       setClientesFiltrados(clientes);
@@ -35,9 +41,9 @@ export default function ClientesScreen({ navigation }) {
 
   const fetchClientes = async () => {
     try {
-      // --- ENDPOINT ATUALIZADO: GET /clientes/consultar ---
       console.log("Buscando clientes do backend...");
-      const response = await api.get('/clientes/consultar');
+      // 2. APLIQUE O TIPO NA RESPOSTA DA API
+      const response = await api.get<Cliente[]>('/clientes/consultar');
       setClientes(response.data);
     } catch (error) {
       console.error("Erro ao buscar clientes:", error);
@@ -45,25 +51,25 @@ export default function ClientesScreen({ navigation }) {
     }
   };
   
-    const handleNovoCliente = () => {
+  const handleNovoCliente = () => {
     navigation.navigate('CadastroCliente', {
-      onSalvar: (novoCliente) => {
+      onSalvar: (novoCliente: Cliente) => { // 3. TIPO NO CALLBACK
         setClientes(prevClientes => [novoCliente, ...prevClientes]);
       },
     });
   };
 
-  const handleEditarCliente = (cliente) => {
+  const handleEditarCliente = (cliente: Cliente) => { // 4. TIPO NO PARÂMETRO DA FUNÇÃO
     navigation.navigate('CadastroCliente', {
       clienteExistente: cliente,
-      onSalvar: (clienteAtualizado) => {
+      onSalvar: (clienteAtualizado: Cliente) => { // 3. TIPO NO CALLBACK
         setClientes(prevClientes =>
           prevClientes.map(c =>
             c.id_cliente === clienteAtualizado.id_cliente ? clienteAtualizado : c
           )
         );
       },
-      onExcluir: (clienteId) => {
+      onExcluir: (clienteId: number) => { // 3. TIPO NO CALLBACK
         setClientes(prevClientes =>
           prevClientes.filter(c => c.id_cliente !== clienteId)
         );
@@ -97,7 +103,7 @@ export default function ClientesScreen({ navigation }) {
           data={clientesFiltrados}
           keyExtractor={item => item.id_cliente.toString()}
           style={styles.clientesContainer}
-          renderItem={({ item }) => (
+          renderItem={({ item }: { item: Cliente }) => ( // 5. TIPO NO RENDERITEM
             <View style={styles.clienteCard}>
               <View style={styles.clienteInfo}>
                 <Text style={styles.clienteNome}>{item.nome}</Text>
@@ -122,6 +128,7 @@ export default function ClientesScreen({ navigation }) {
   );
 }
 
+// Seus estilos permanecem os mesmos
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { 
@@ -135,8 +142,6 @@ const styles = StyleSheet.create({
     fontSize: 22, 
     fontWeight: 'bold', 
     color: 'white' 
-
-
   },
   searchContainer: { 
     flexDirection: 'row', 
@@ -145,18 +150,15 @@ const styles = StyleSheet.create({
     borderRadius: 10, 
     paddingHorizontal: 15, 
     marginBottom: 20 
-
   },
   searchIcon: { 
     marginRight: 10 
-
   },
   searchInput: { 
     flex: 1, 
     height: 45, 
     color: '#333', 
     fontSize: 16 
-
   },
   content: { 
     flex: 1, 
@@ -165,13 +167,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30, 
     padding: 20, 
     paddingTop: 30 
-
-  }
-  ,
+  },
   clientesContainer: { 
     flex: 1, 
     marginBottom: 20 
-
   },
   clienteCard: { 
     flexDirection: 'row', 
@@ -181,28 +180,22 @@ const styles = StyleSheet.create({
     borderRadius: 10, 
     padding: 15, 
     marginBottom: 10 
-
   },
   clienteInfo: { 
     flex: 1 
-
   },
   clienteNome: { 
     fontSize: 16, 
     fontWeight: '600', 
     color: '#2C3E50', 
     marginBottom: 5 
-
   },
-
   clienteTelefone: { 
     fontSize: 14, 
     color: '#566573' 
-
   },
   clienteAction: { 
     padding: 5 
-
   },
   addButton: { 
     flexDirection: 'row', 
@@ -213,13 +206,11 @@ const styles = StyleSheet.create({
     padding: 15, 
     marginTop: 20, 
     marginBottom: 20 
-
   },
   addButtonText: { 
     color: 'white', 
     fontSize: 16, 
     fontWeight: '600', 
     marginLeft: 10 
-
   },
 });
