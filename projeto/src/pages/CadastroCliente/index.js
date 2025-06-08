@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import api from '../../services/api';
 
 export default function CadastroCliente({ route, navigation }) {
   // 1. Recebe os parâmetros, incluindo os callbacks
@@ -23,43 +24,40 @@ export default function CadastroCliente({ route, navigation }) {
   // 2. FUNÇÃO PARA SALVAR (CRIAR OU ATUALIZAR)
   const handleSalvar = async () => {
     if (!nome.trim()) {
-      Alert.alert("Atenção", "O nome do cliente é obrigatório.");
-      return;
+        Alert.alert("Atenção", "O nome do cliente é obrigatório.");
+        return;
     }
     const dadosCliente = { nome, telefone, cpf, endereco };
 
     try {
-      let clienteSalvo;
-      if (isEditando) {
-        // --- ENDPOINT: PUT /api/clientes/:id ---
-        console.log(`Atualizando cliente ${clienteExistente.id} com dados:`, dadosCliente);
-        // const response = await apiClient.put(`/clientes/${clienteExistente.id}`, dadosCliente);
-        // clienteSalvo = response.data;
+        let clienteSalvo;
+        if (isEditando) {
+            // --- ENDPOINT: PUT /api/clientes/:id ---
+            // A chamada real ao backend é feita aqui.
+            console.log(`Atualizando cliente ${clienteExistente.id} com dados:`, dadosCliente);
+            const response = await apiClient.put(`/clientes/${clienteExistente.id}`, dadosCliente);
+            clienteSalvo = response.data; // O backend deve retornar o cliente atualizado
 
-        // Simulação de retorno do backend:
-        clienteSalvo = { ...clienteExistente, ...dadosCliente };
+        } else {
+            // --- ENDPOINT: POST /api/clientes ---
+            // A chamada real ao backend é feita aqui.
+            console.log("Cadastrando novo cliente com dados:", dadosCliente);
+            const response = await apiClient.post('/clientes', dadosCliente);
+            clienteSalvo = response.data; // O backend deve retornar o novo cliente com o ID
+        }
 
-      } else {
-        // --- ENDPOINT: POST /api/clientes ---
-        console.log("Cadastrando novo cliente com dados:", dadosCliente);
-        // const response = await apiClient.post('/clientes', dadosCliente);
-        // clienteSalvo = response.data;
-
-        // Simulação de retorno do backend:
-        clienteSalvo = { id: String(Date.now()), ...dadosCliente };
-      }
-
-      // Se a chamada ao backend foi bem-sucedida, chama o callback 'onSalvar'
-      if (typeof onSalvar === 'function') {
-        onSalvar(clienteSalvo);
-      }
-      navigation.goBack();
+        // Se a chamada ao backend foi bem-sucedida, chama o callback 'onSalvar'
+        if (typeof onSalvar === 'function' && clienteSalvo) {
+            onSalvar(clienteSalvo);
+        }
+        navigation.goBack();
 
     } catch (error) {
-      console.error("Erro ao salvar cliente:", error);
-      Alert.alert("Erro", "Não foi possível salvar o cliente.");
+        console.error("Erro ao salvar cliente:", error);
+        Alert.alert("Erro", "Não foi possível salvar o cliente.");
     }
-  };
+};
+
 
   // 3. FUNÇÃO PARA EXCLUIR
   const handleExcluir = () => {
@@ -75,7 +73,7 @@ export default function CadastroCliente({ route, navigation }) {
             try {
               // --- ENDPOINT: DELETE /api/clientes/:id ---
               console.log(`Excluindo cliente ${clienteExistente.id}...`);
-              // await apiClient.delete(`/clientes/${clienteExistente.id}`);
+              await apiClient.delete(`/clientes/${clienteExistente.id}`);
 
               // Se a exclusão no backend foi bem-sucedida, chama o callback 'onExcluir'
               if (typeof onExcluir === 'function') {
