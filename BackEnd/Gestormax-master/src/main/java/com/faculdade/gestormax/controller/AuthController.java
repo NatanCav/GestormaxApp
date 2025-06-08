@@ -20,6 +20,11 @@ public class AuthController {
         String email = dadosLogin.get("email");
         String senha = dadosLogin.get("senha");
 
+        // Validação básica dos campos
+        if (email == null || senha == null || email.isBlank() || senha.isBlank()) {
+            return ResponseEntity.badRequest().body("Email e senha são obrigatórios");
+        }
+
         return usuarioRepository.findByEmailAndSenha(email, senha)
                 .map(usuario -> ResponseEntity.ok("Login realizado com sucesso"))
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou senha inválidos"));

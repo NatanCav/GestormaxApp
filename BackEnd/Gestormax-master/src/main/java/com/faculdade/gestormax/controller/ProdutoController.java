@@ -31,10 +31,16 @@ public class ProdutoController {
     }
 
     @PutMapping("/editar/{id}")
-    public Produto update(@PathVariable Long id, @RequestBody Produto produto) {
-        produto.setId_produto(id);
-        return produtoRepositoryRepository.save(produto);
+    public ResponseEntity<Produto> update(@PathVariable Long id, @RequestBody Produto produto) {
+        return produtoRepositoryRepository.findById(id)
+                .map(produtoExistente -> {
+                    produto.setId_produto(id);
+                    Produto atualizado = produtoRepositoryRepository.save(produto);
+                    return ResponseEntity.ok(atualizado);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Object> deletar(@PathVariable Long id) {

@@ -1,8 +1,10 @@
 package com.faculdade.gestormax.controller;
 
 import com.faculdade.gestormax.model.Cliente;
+import com.faculdade.gestormax.model.Fornecedor;
 import com.faculdade.gestormax.model.Produto;
 import com.faculdade.gestormax.repository.ClienteRepository;
+import com.faculdade.gestormax.repository.FornecedorRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,46 +15,48 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/clientes")
-public class ClienteController {
+@RequestMapping("/fornecedores")
+public class FornecedorController {
 
     @Autowired
-    ClienteRepository clienteRepositoryRepository;
+    FornecedorRepository fornecedorRepository;
 
     @GetMapping("/consultar")
-    public List<Cliente> consultar() {
-        return clienteRepositoryRepository.findAll();
+    public List<Fornecedor> consultar() {
+        return fornecedorRepository.findAll();
     }
 
     @PostMapping("/cadastrar")
     @ResponseStatus(HttpStatus.CREATED)
-    public Cliente cadastrar(@RequestBody Cliente cliente) {
-        return clienteRepositoryRepository.save(cliente);
+    public Fornecedor cadastrar(@RequestBody Fornecedor fornecedor) {
+        return fornecedorRepository.save(fornecedor);
     }
 
     @GetMapping("/consulta/{id}")
-    public ResponseEntity<Cliente> consultarPorId(@PathVariable Long id) {
-        Optional<Cliente> cliente = clienteRepositoryRepository.findById(id);
-        return cliente.map(ResponseEntity::ok)
+    public ResponseEntity<Fornecedor> consultarPorId(@PathVariable Long id) {
+        Optional<Fornecedor> fornecedor = fornecedorRepository.findById(id);
+        return fornecedor.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/editar/{id}")
-    public ResponseEntity<Cliente> update(@PathVariable Long id, @RequestBody Cliente cliente) {
-        return clienteRepositoryRepository.findById(id)
-                .map(clienteExistente -> {
-                    cliente.setId_cliente(id);
-                    Cliente atualizado = clienteRepositoryRepository.save(cliente);
+    public ResponseEntity<Fornecedor> update(@PathVariable Long id, @RequestBody Fornecedor fornecedor) {
+        return fornecedorRepository.findById(id)
+                .map(fornecedorExistente -> {
+                    fornecedor.setId_fornecedor(id);
+                    Fornecedor atualizado = fornecedorRepository.save(fornecedor);
                     return ResponseEntity.ok(atualizado);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Object> deletar(@PathVariable Long id) {
-        return clienteRepositoryRepository.findById(id).map(cliente -> {
-            clienteRepositoryRepository.delete(cliente);
+        return fornecedorRepository.findById(id).map(fornecedor -> {
+            fornecedorRepository.delete(fornecedor);
             return ResponseEntity.noContent().build();
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
+
