@@ -2,12 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import api from '../../services/api'; // 
+import api from '../../services/api'; // Certifique-se de que o caminho está correto
 
-export default function ProdutosScreen({ navigation }) {
+// 1. IMPORTANDO OS TIPOS
+import { Produto, RootStackParamList } from '../../types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Produtos'>;
+
+export default function ProdutosScreen({ navigation }: Props) {
     const [searchText, setSearchText] = useState('');
-    const [produtos, setProdutos] = useState([]);
-    const [produtosFiltrados, setProdutosFiltrados] = useState([]);
+    // 2. TIPANDO OS ESTADOS
+    const [produtos, setProdutos] = useState<Produto[]>([]);
+    const [produtosFiltrados, setProdutosFiltrados] = useState<Produto[]>([]);
 
     // EFEITO PARA BUSCAR OS DADOS DO BACKEND QUANDO A TELA GANHA FOCO
     useEffect(() => {
@@ -34,7 +41,7 @@ export default function ProdutosScreen({ navigation }) {
         try {
             // --- ENDPOINT: GET /produtos/consultar ---
             console.log("Buscando produtos do backend...");
-            const response = await api.get('/produtos/consultar');
+            const response = await api.get<Produto[]>('/produtos/consultar');
             setProdutos(response.data);
         } catch (error) {
             console.error("Erro ao buscar produtos:", error);
@@ -44,13 +51,14 @@ export default function ProdutosScreen({ navigation }) {
 
     const handleNovoProduto = () => {
         navigation.navigate('CadastroProduto', {
+            // 3. PASSANDO O CALLBACK onSalvar CORRETAMENTE
             onSalvar: (novoProduto) => {
                 setProdutos(prevProdutos => [novoProduto, ...prevProdutos]);
             },
         });
     };
 
-    const handleEditarProduto = (produto) => {
+    const handleEditarProduto = (produto: Produto) => {
         navigation.navigate('CadastroProduto', {
             produtoExistente: produto,
             onSalvar: (produtoAtualizado) => {
@@ -95,7 +103,7 @@ export default function ProdutosScreen({ navigation }) {
                     data={produtosFiltrados}
                     keyExtractor={item => item.id_produto.toString()}
                     style={styles.produtosContainer}
-                    renderItem={({ item }) => (
+                    renderItem={({ item }: { item: Produto }) => (
                         <TouchableOpacity onPress={() => handleEditarProduto(item)}>
                             <View style={styles.produtoCard}>
                                 <View style={styles.produtoInfo}>

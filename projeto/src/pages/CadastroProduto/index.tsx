@@ -4,10 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../services/api';
 
+// 1. IMPORTANDO OS TIPOS
+import { Produto, RootStackParamList } from '../../types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+
 const gradientColors = ['#0C4B8E', '#116EB0'] as const;
 const solidBlue = '#116EB0';
 
-export default function CadastroProduto({ navigation, route }) {
+// 2. TIPANDO AS PROPS DO COMPONENTE
+type Props = NativeStackScreenProps<RootStackParamList, 'CadastroProduto'>;
+
+export default function CadastroProduto({ navigation, route }: Props) {
     const { produtoExistente, onSalvar, onExcluir } = route.params || {};
     const isEditando = !!produtoExistente;
     
@@ -35,19 +42,19 @@ export default function CadastroProduto({ navigation, route }) {
             codigo,
             descricao,
             categoria,
-            valor: parseFloat(valor) || 0,
+            valor: parseFloat(valor.replace(',', '.')) || 0, // Garante que a vírgula vire ponto
             quantidade: parseInt(quantidade) || 0,
         };
 
         try {
-            let produtoSalvo;
+            let produtoSalvo: Produto;
             if (isEditando) {
                 // --- ENDPOINT: PUT /produtos/editar/:id ---
-                const response = await api.put(`/produtos/editar/${produtoExistente.id_produto}`, dadosProduto);
+                const response = await api.put<Produto>(`/produtos/editar/${produtoExistente.id_produto}`, dadosProduto);
                 produtoSalvo = response.data;
             } else {
                 // --- ENDPOINT: POST /produtos/cadastrar ---
-                const response = await api.post('/produtos/cadastrar', dadosProduto);
+                const response = await api.post<Produto>('/produtos/cadastrar', dadosProduto);
                 produtoSalvo = response.data;
             }
 
@@ -58,11 +65,18 @@ export default function CadastroProduto({ navigation, route }) {
 
         } catch (error) {
             console.error("Erro ao salvar produto:", error);
-            Alert.alert("Erro", "Não foi possível salvar o produto.");
+            // 4. LOG DE ERRO MAIS DETALHADO
+            if (error.response) {
+                console.error("Detalhes do erro:", error.response.data);
+                Alert.alert("Erro ao Salvar", `O servidor respondeu com um erro: ${error.response.data.message || 'Verifique os dados.'}`);
+            } else {
+                Alert.alert("Erro de Conexão", "Não foi possível conectar ao servidor.");
+            }
         }
     };
 
     const handleExcluir = () => {
+        if (!isEditando) return;
         Alert.alert(
             "Confirmar Exclusão",
             `Deseja realmente excluir o produto "${nome}"?`,
@@ -90,48 +104,48 @@ export default function CadastroProduto({ navigation, route }) {
     };
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <LinearGradient colors={gradientColors} style={styles.header} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+        <SafeAreaView style={stylesCadastro.safeArea}>
+            <LinearGradient colors={gradientColors} style={stylesCadastro.header} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={30} color="#FFFFFF" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>{isEditando ? 'Editar Produto' : 'Novo Produto'}</Text>
+                <Text style={stylesCadastro.headerTitle}>{isEditando ? 'Editar Produto' : 'Novo Produto'}</Text>
                 <TouchableOpacity onPress={handleSalvar}>
                     <Ionicons name="checkmark" size={30} color="#FFFFFF" />
                 </TouchableOpacity>
             </LinearGradient>
 
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                <ScrollView style={styles.formContainer}>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Nome*</Text>
-                        <TextInput style={styles.input} value={nome} onChangeText={setNome} placeholder="Digite o nome" />
+                <ScrollView style={stylesCadastro.formContainer}>
+                    <View style={stylesCadastro.inputContainer}>
+                        <Text style={stylesCadastro.label}>Nome*</Text>
+                        <TextInput style={stylesCadastro.input} value={nome} onChangeText={setNome} placeholder="Digite o nome" />
                     </View>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Código*</Text>
-                        <TextInput style={styles.input} value={codigo} onChangeText={setCodigo} placeholder="Digite o código" />
+                    <View style={stylesCadastro.inputContainer}>
+                        <Text style={stylesCadastro.label}>Código*</Text>
+                        <TextInput style={stylesCadastro.input} value={codigo} onChangeText={setCodigo} placeholder="Digite o código" />
                     </View>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Descrição</Text>
-                        <TextInput style={styles.input} value={descricao} onChangeText={setDescricao} placeholder="Digite a descrição" multiline />
+                    <View style={stylesCadastro.inputContainer}>
+                        <Text style={stylesCadastro.label}>Descrição</Text>
+                        <TextInput style={stylesCadastro.input} value={descricao} onChangeText={setDescricao} placeholder="Digite a descrição" multiline />
                     </View>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Valor (R$)</Text>
-                        <TextInput style={styles.input} value={valor} onChangeText={setValor} placeholder="0.00" keyboardType="decimal-pad"/>
+                    <View style={stylesCadastro.inputContainer}>
+                        <Text style={stylesCadastro.label}>Valor (R$)</Text>
+                        <TextInput style={stylesCadastro.input} value={valor} onChangeText={setValor} placeholder="0,00" keyboardType="decimal-pad"/>
                     </View>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Categoria</Text>
-                        <TextInput style={styles.input} value={categoria} onChangeText={setCategoria} placeholder="Digite a categoria" />
+                    <View style={stylesCadastro.inputContainer}>
+                        <Text style={stylesCadastro.label}>Categoria</Text>
+                        <TextInput style={stylesCadastro.input} value={categoria} onChangeText={setCategoria} placeholder="Digite a categoria" />
                     </View>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Quantidade em Estoque</Text>
-                        <TextInput style={styles.input} value={quantidade} onChangeText={setQuantidade} placeholder="0" keyboardType="numeric" />
+                    <View style={stylesCadastro.inputContainer}>
+                        <Text style={stylesCadastro.label}>Quantidade em Estoque</Text>
+                        <TextInput style={stylesCadastro.input} value={quantidade} onChangeText={setQuantidade} placeholder="0" keyboardType="numeric" />
                     </View>
 
                     {isEditando && (
-                        <TouchableOpacity style={styles.deleteButton} onPress={handleExcluir}>
+                        <TouchableOpacity style={stylesCadastro.deleteButton} onPress={handleExcluir}>
                            <Ionicons name="trash-bin-outline" size={22} color="#FFFFFF" />
-                           <Text style={styles.deleteButtonText}>Excluir Produto</Text>
+                           <Text style={stylesCadastro.deleteButtonText}>Excluir Produto</Text>
                         </TouchableOpacity>
                     )}
                 </ScrollView>
@@ -140,8 +154,7 @@ export default function CadastroProduto({ navigation, route }) {
     );
 }
 
-
-const styles = StyleSheet.create({
+const stylesCadastro = StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 20, paddingTop: 45 },
     headerTitle: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' },
