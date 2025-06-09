@@ -39,6 +39,44 @@ export interface Produto {
   valor?: number;
 }
 
+/**
+ * Define a estrutura base comum para todas as movimentações.
+ */
+interface MovimentacaoBase {
+  id_movimentacao: number; // Supondo que o backend use este nome
+  tipo: 'entrada' | 'saida';
+  data: string; // Ex: "DD/MM/AAAA"
+  valorTotal: number;
+  observacao?: string;
+}
+
+/**
+ * Estrutura para uma movimentação do tipo ENTRADA.
+ */
+export interface MovimentacaoEntrada extends MovimentacaoBase {
+  tipo: 'entrada';
+  produtoNome: string;
+  fornecedorNome: string;
+  quantidade: number;
+}
+
+/**
+ * Estrutura para uma movimentação do tipo SAÍDA.
+ */
+export interface MovimentacaoSaida extends MovimentacaoBase {
+  tipo: 'saida';
+  pedidoId: string;
+  clienteNome: string;
+  vendedorNome: string; // Se o seu sistema usa 'usuários', poderia ser 'usuarioNome'
+  itensDescricao?: string[];
+}
+
+/**
+ * O tipo Movimentacao pode ser uma Entrada OU uma Saída.
+ * O TypeScript saberá qual é qual com base no campo 'tipo'.
+ */
+export type Movimentacao = MovimentacaoEntrada | MovimentacaoSaida;
+
 
 // --- Tipo para a Navegação (React Navigation) ---
 
@@ -78,6 +116,11 @@ export type RootStackParamList = {
     onExcluir?: (id: number) => void;
   };
 
-  // Adicione outras telas aqui...
-  // Ex: Movimentacoes: undefined;
+  // Rota de Movimentações
+  Movimentacoes: undefined;
+  CadastroMovimentacao: {
+    movimentacaoExistente?: Movimentacao;
+    onSalvar: (movimentacao: Movimentacao) => void;
+    onExcluir?: (id: number) => void;
+  };
 };

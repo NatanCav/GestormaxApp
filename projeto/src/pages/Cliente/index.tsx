@@ -19,6 +19,7 @@ export default function ClientesScreen({ navigation }: Props) {
   // 1. APLIQUE O TIPO 'Cliente[]' AOS ESTADOS
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [clientesFiltrados, setClientesFiltrados] = useState<Cliente[]>([]);
+  const solidBlue = '#116EB0';
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {

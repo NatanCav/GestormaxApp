@@ -14,8 +14,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../services/api'; 
 
-const gradientColors = ['#0C4B8E', '#116EB0'];
+const gradientColors = ['#0C4B8E', '#116EB0'] as const;
 const solidBlue = '#116EB0';
+
 
 const FornecedorCard = ({ fornecedor, onPress }) => (
   <TouchableOpacity style={styles.cardContainer} onPress={onPress}>

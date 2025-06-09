@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../services/api';
 
-const gradientColors = ['#0C4B8E', '#116EB0'];
+const gradientColors = ['#0C4B8E', '#116EB0'] as const;
 const solidBlue = '#116EB0';
 
 export default function CadastroProduto({ navigation, route }) {

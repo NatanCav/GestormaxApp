@@ -18,6 +18,7 @@ export default function CadastroCliente({ route, navigation }: Props) { // 3. AP
   // Agora o TypeScript sabe que route.params pode ter 'clienteExistente', 'onSalvar', etc.
   const { clienteExistente, onSalvar, onExcluir } = route.params || {};
   const isEditando = !!clienteExistente;
+  const solidBlue = '#116EB0';
 
   // O TypeScript agora infere os tipos dos estados a partir dos valores iniciais
   const [nome, setNome] = useState(clienteExistente?.nome || '');

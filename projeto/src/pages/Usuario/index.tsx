@@ -14,7 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // Cores do gradiente e cor sólida (mantendo a consistência)
-const gradientColors = ['#0C4B8E', '#116EB0'];
+const gradientColors = ['#0C4B8E', '#116EB0'] as const;
 const solidBlue = '#116EB0';
 
 // Dados de exemplo (mock) para usuários
@@ -158,7 +158,7 @@ export default function UsuariosScreen({ navigation }) {
             renderItem={({ item }) => (
               <UsuarioCard
                 usuario={item}
-                onEditPress={() => handleEditarUsuario(item)}
+                onEditPress={() => handleEditarUsuarios(item)}
               />
             )}
             keyExtractor={item => item.id}

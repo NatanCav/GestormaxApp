@@ -2,7 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import api from '../../services/api'; // Certifique-se que o caminho está correto
+import api from '../../services/api';
+
+// --- PASSO 1: MOVA AS CONSTANTES PARA CÁ ---
+// As constantes agora estão no topo do arquivo, fora do componente.
+const gradientColors = ['#0C4B8E', '#116EB0'] as const;
+const solidBlue = '#116EB0';
+
+// A tipagem de navegação também pode ser movida para cá ou para o arquivo types.ts
+// ...
 
 export default function CadastroFornecedor({ navigation, route }) {
   const { fornecedorExistente, onSalvar, onExcluir } = route.params || {};
@@ -13,6 +21,8 @@ export default function CadastroFornecedor({ navigation, route }) {
   const [endereco, setEndereco] = useState(fornecedorExistente?.endereco || '');
   const [telefone, setTelefone] = useState(fornecedorExistente?.telefone || '');
   const [cnpj, setCnpj] = useState(fornecedorExistente?.cnpj || '');
+
+  // As constantes de cor não ficam mais aqui dentro.
 
   useEffect(() => {
     navigation.setOptions({
@@ -110,6 +120,7 @@ export default function CadastroFornecedor({ navigation, route }) {
   );
 }
 
+// O StyleSheet agora consegue acessar a constante 'solidBlue' sem problemas.
 const stylesCadastro = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 20, paddingTop: 45 },
@@ -117,7 +128,7 @@ const stylesCadastro = StyleSheet.create({
   formContainer: { flexGrow: 1 },
   content: { backgroundColor: 'white', padding: 20, paddingTop: 30, minHeight: '100%' },
   section: { marginBottom: 25, borderBottomWidth: 1, borderBottomColor: '#E0E0E0', paddingBottom: 15 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: solidBlue, marginBottom: 15 },
+  sectionTitle: { fontSize: 18, fontWeight: '600', color: solidBlue, marginBottom: 15 }, // <-- LINHA 123 CORRIGIDA
   input: { backgroundColor: '#F5F5F5', borderRadius: 10, padding: 15, marginBottom: 15, fontSize: 16, borderWidth: 1, borderColor: '#E0E0E0', color: '#333' },
   deleteButton: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#e74c3c', padding: 16, borderRadius: 10, marginTop: 15 },
   deleteButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
