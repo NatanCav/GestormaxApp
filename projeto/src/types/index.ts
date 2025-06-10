@@ -71,6 +71,13 @@ export interface MovimentacaoSaida extends MovimentacaoBase {
   itensDescricao?: string[];
 }
 
+export interface Usuario {
+  idUsuario: number; // Supondo que a chave primária seja esta
+  nomeUsuario: string;
+  email: string;
+  senha?: string; // Senha é opcional no retorno, e nunca deve ser exibida
+}
+
 /**
  * O tipo Movimentacao pode ser uma Entrada OU uma Saída.
  * O TypeScript saberá qual é qual com base no campo 'tipo'.
@@ -121,6 +128,12 @@ export type RootStackParamList = {
   CadastroMovimentacao: {
     movimentacaoExistente?: Movimentacao;
     onSalvar: (movimentacao: Movimentacao) => void;
+    onExcluir?: (id: number) => void;
+  };
+  Usuarios: undefined;
+  CadastroUsuario: {
+    usuarioExistente?: Usuario;
+    onSalvar: (usuario: Usuario) => void;
     onExcluir?: (id: number) => void;
   };
 };
