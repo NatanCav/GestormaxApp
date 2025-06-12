@@ -1,4 +1,4 @@
-package com.faculdade.gestormax.services;
+package com.faculdade.gestormax.service;
 
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

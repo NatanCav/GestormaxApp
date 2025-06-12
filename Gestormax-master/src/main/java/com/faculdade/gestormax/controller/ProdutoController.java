@@ -13,29 +13,29 @@ import java.util.List;
 public class ProdutoController {
 
     @Autowired
-    ProdutoRepository produtoRepositoryRepository;
+    ProdutoRepository produtoRepository;
 
     @GetMapping("/consultar")
     public List<Produto> getAll() {
-        return produtoRepositoryRepository.findAll();
+        return produtoRepository.findAll();
     }
 
-    @GetMapping("/consultar/{id}")
+    @GetMapping("/consulta/{id}")
     public Produto getById(@PathVariable Long id) {
-        return produtoRepositoryRepository.findById(id).orElse(null);
+        return produtoRepository.findById(id).orElse(null);
     }
 
     @PostMapping("/cadastrar")
     public Produto create(@RequestBody Produto produto) {
-        return produtoRepositoryRepository.save(produto);
+        return produtoRepository.save(produto);
     }
 
     @PutMapping("/editar/{id}")
     public ResponseEntity<Produto> update(@PathVariable Long id, @RequestBody Produto produto) {
-        return produtoRepositoryRepository.findById(id)
+        return produtoRepository.findById(id)
                 .map(produtoExistente -> {
                     produto.setId_produto(id);
-                    Produto atualizado = produtoRepositoryRepository.save(produto);
+                    Produto atualizado = produtoRepository.save(produto);
                     return ResponseEntity.ok(atualizado);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -44,8 +44,8 @@ public class ProdutoController {
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Object> deletar(@PathVariable Long id) {
-        return produtoRepositoryRepository.findById(id).map(produto -> {
-            produtoRepositoryRepository.delete(produto);
+        return produtoRepository.findById(id).map(produto -> {
+            produtoRepository.delete(produto);
             return ResponseEntity.noContent().build();
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }

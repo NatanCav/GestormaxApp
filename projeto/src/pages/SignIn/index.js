@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Modal, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { 
+    View, 
+    Text, 
+    Image, 
+    StyleSheet, 
+    TextInput, 
+    TouchableOpacity, 
+    Modal, 
+    ActivityIndicator, 
+    KeyboardAvoidingView, 
+    Platform, 
+    ScrollView 
+} from 'react-native';
+
 import api from '../../services/api';
 import * as Animatable from 'react-native-animatable';
-
-// --- 1. IMPORTAÇÕES DE TIPO ---
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types'; 
-
-// --- 2. DEFINA O TIPO ESPECÍFICO PARA A NAVEGAÇÃO DESTA TELA ---
-// Isto diz ao TypeScript como é o objeto de navegação para a pilha que contém o ecrã 'Login'
-type SignInNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function SignIn() {
-    // --- 3. USE O useNavigation E APLIQUE O TIPO ---
-    const navigation = useNavigation<SignInNavigationProp>();
+    const navigation = useNavigation();
 
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
@@ -32,26 +36,35 @@ export default function SignIn() {
         setIsLoading(true);
 
         try {
+            // --- 1. URL CORRIGIDA PARA CORRESPONDER AO BACKEND ---
             const response = await api.post('/auth/login', {
                 email: email,
                 senha: senha
             });
             
+            // --- 2. LÓGICA DE SUCESSO CORRIGIDA ---
+            // Se o login for válido, o backend retorna status 200.
+            // Se for inválido, ele retorna 401, que cai no bloco 'catch'.
             if (response.status === 200) {
-                console.log('Login válido, a navegar para o menu principal...');
-                
-                // --- 4. AGORA ESTA LINHA FUNCIONA SEM ERROS ---
-                // O TypeScript sabe que 'PrincipalMenu' é um nome de rota válido
+                console.log('Login válido, navegando para o menu principal...');
+                console.log('Resposta do servidor:', response.data); // Deve ser "Login realizado com sucesso"
+
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'PrincipalMenu' }],
                 });
             }
+            
         } catch (error) {
             console.error('Erro no login:', error);
+            
+            // --- 3. LÓGICA DE ERRO CORRIGIDA ---
             if (error.response && error.response.status === 401) {
-                setMensagemModal(error.response.data || 'Email ou senha inválidos.');
+                // Captura o erro 401 (UNAUTHORIZED) do backend
+                // e exibe a mensagem "Email ou senha inválidos"
+                setMensagemModal(error.response.data);
             } else {
+                // Outros erros (rede, servidor fora do ar)
                 setMensagemModal('Não foi possível conectar. Verifique sua conexão e a URL da API.');
             }
             setModalVisivel(true);
@@ -63,7 +76,7 @@ export default function SignIn() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1 }}
+            style={{ flex: 1 }} 
         >
             <View style={styles.container}>
                 <Modal

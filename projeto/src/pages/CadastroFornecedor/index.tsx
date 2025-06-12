@@ -1,28 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons'; // Adicionado MaterialIcons
 import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../services/api';
 
-// --- PASSO 1: MOVA AS CONSTANTES PARA CÁ ---
-// As constantes agora estão no topo do arquivo, fora do componente.
 const gradientColors = ['#0C4B8E', '#116EB0'] as const;
 const solidBlue = '#116EB0';
-
-// A tipagem de navegação também pode ser movida para cá ou para o arquivo types.ts
-// ...
 
 export default function CadastroFornecedor({ navigation, route }) {
   const { fornecedorExistente, onSalvar, onExcluir } = route.params || {};
   const isEditando = !!fornecedorExistente;
 
-  // Estados para cada campo do formulário
   const [nome, setNome] = useState(fornecedorExistente?.nome || '');
   const [endereco, setEndereco] = useState(fornecedorExistente?.endereco || '');
   const [telefone, setTelefone] = useState(fornecedorExistente?.telefone || '');
   const [cnpj, setCnpj] = useState(fornecedorExistente?.cnpj || '');
-
-  // As constantes de cor não ficam mais aqui dentro.
 
   useEffect(() => {
     navigation.setOptions({
@@ -40,11 +32,9 @@ export default function CadastroFornecedor({ navigation, route }) {
     try {
       let fornecedorSalvo;
       if (isEditando) {
-        // --- ENDPOINT: PUT /fornecedores/editar/:id ---
         const response = await api.put(`/fornecedores/editar/${fornecedorExistente.id_fornecedor}`, dadosFornecedor);
         fornecedorSalvo = response.data;
       } else {
-        // --- ENDPOINT: POST /fornecedores/cadastrar ---
         const response = await api.post('/fornecedores/cadastrar', dadosFornecedor);
         fornecedorSalvo = response.data;
       }
@@ -60,6 +50,7 @@ export default function CadastroFornecedor({ navigation, route }) {
   };
 
   const handleExcluir = () => {
+    if (!isEditando) return;
     Alert.alert(
       "Confirmar Exclusão",
       `Deseja realmente excluir o fornecedor "${nome}"?`,
@@ -70,7 +61,6 @@ export default function CadastroFornecedor({ navigation, route }) {
           style: "destructive",
           onPress: async () => {
             try {
-              // --- ENDPOINT: DELETE /fornecedores/deletar/:id ---
               await api.delete(`/fornecedores/deletar/${fornecedorExistente.id_fornecedor}`);
               if (typeof onExcluir === 'function') {
                 onExcluir(fornecedorExistente.id_fornecedor);
@@ -93,9 +83,8 @@ export default function CadastroFornecedor({ navigation, route }) {
           <Ionicons name="arrow-back" size={30} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={stylesCadastro.headerTitle}>{isEditando ? 'Editar Fornecedor' : 'Novo Fornecedor'}</Text>
-        <TouchableOpacity onPress={handleSalvar}>
-          <Ionicons name="checkmark" size={30} color="#FFFFFF" />
-        </TouchableOpacity>
+        {/* 1. BOTÃO DE SALVAR REMOVIDO DO CABEÇALHO */}
+        <View style={{ width: 30 }} />
       </LinearGradient>
 
       <ScrollView contentContainerStyle={stylesCadastro.formContainer}>
@@ -108,6 +97,12 @@ export default function CadastroFornecedor({ navigation, route }) {
             <TextInput style={stylesCadastro.input} placeholder="CNPJ" value={cnpj} onChangeText={setCnpj} keyboardType="numeric" placeholderTextColor="#999" />
           </View>
           
+          {/* 2. BOTÃO DE SALVAR ADICIONADO AO FINAL DO FORMULÁRIO */}
+          <TouchableOpacity style={stylesCadastro.saveButton} onPress={handleSalvar}>
+            <MaterialIcons name="save" size={22} color="white" style={{ marginRight: 10 }} />
+            <Text style={stylesCadastro.saveButtonText}>Salvar Fornecedor</Text>
+          </TouchableOpacity>
+
           {isEditando && (
             <TouchableOpacity style={stylesCadastro.deleteButton} onPress={handleExcluir}>
               <Ionicons name="trash-bin-outline" size={22} color="#FFFFFF" />
@@ -120,16 +115,43 @@ export default function CadastroFornecedor({ navigation, route }) {
   );
 }
 
-// O StyleSheet agora consegue acessar a constante 'solidBlue' sem problemas.
 const stylesCadastro = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 20, paddingTop: 45 },
   headerTitle: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' },
   formContainer: { flexGrow: 1 },
-  content: { backgroundColor: 'white', padding: 20, paddingTop: 30, minHeight: '100%' },
-  section: { marginBottom: 25, borderBottomWidth: 1, borderBottomColor: '#E0E0E0', paddingBottom: 15 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: solidBlue, marginBottom: 15 }, // <-- LINHA 123 CORRIGIDA
+  content: { backgroundColor: 'white', padding: 20, paddingTop: 30, flex: 1, justifyContent: 'space-between' },
+  section: { paddingBottom: 15 },
+  sectionTitle: { fontSize: 18, fontWeight: '600', color: solidBlue, marginBottom: 15 },
   input: { backgroundColor: '#F5F5F5', borderRadius: 10, padding: 15, marginBottom: 15, fontSize: 16, borderWidth: 1, borderColor: '#E0E0E0', color: '#333' },
-  deleteButton: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#e74c3c', padding: 16, borderRadius: 10, marginTop: 15 },
-  deleteButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
+  // 3. ESTILO ADICIONADO PARA O BOTÃO SALVAR
+  saveButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#27ae60', // Verde para salvar
+    padding: 16,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  deleteButton: { 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: '#e74c3c', 
+    padding: 16, 
+    borderRadius: 10, 
+    marginTop: 15 
+  },
+  deleteButtonText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 16, 
+    marginLeft: 8 
+  },
 });

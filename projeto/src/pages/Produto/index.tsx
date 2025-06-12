@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import api from '../../services/api'; // Certifique-se de que o caminho está correto
+import api from '../../services/api';
 
-// 1. IMPORTANDO OS TIPOS
 import { Produto, RootStackParamList } from '../../types';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -12,11 +11,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Produtos'>;
 
 export default function ProdutosScreen({ navigation }: Props) {
     const [searchText, setSearchText] = useState('');
-    // 2. TIPANDO OS ESTADOS
     const [produtos, setProdutos] = useState<Produto[]>([]);
     const [produtosFiltrados, setProdutosFiltrados] = useState<Produto[]>([]);
 
-    // EFEITO PARA BUSCAR OS DADOS DO BACKEND QUANDO A TELA GANHA FOCO
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             fetchProdutos();
@@ -24,14 +21,13 @@ export default function ProdutosScreen({ navigation }: Props) {
         return unsubscribe;
     }, [navigation]);
 
-    // EFEITO PARA A LÓGICA DE BUSCA LOCAL
     useEffect(() => {
         if (searchText.trim() === '') {
             setProdutosFiltrados(produtos);
         } else {
             const filtrados = produtos.filter(produto =>
-                produto.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-                produto.codigo.toLowerCase().includes(searchText.toLowerCase())
+                // Busca agora apenas por nome
+                produto.nome.toLowerCase().includes(searchText.toLowerCase())
             );
             setProdutosFiltrados(filtrados);
         }
@@ -39,8 +35,6 @@ export default function ProdutosScreen({ navigation }: Props) {
 
     const fetchProdutos = async () => {
         try {
-            // --- ENDPOINT: GET /produtos/consultar ---
-            console.log("Buscando produtos do backend...");
             const response = await api.get<Produto[]>('/produtos/consultar');
             setProdutos(response.data);
         } catch (error) {
@@ -51,7 +45,6 @@ export default function ProdutosScreen({ navigation }: Props) {
 
     const handleNovoProduto = () => {
         navigation.navigate('CadastroProduto', {
-            // 3. PASSANDO O CALLBACK onSalvar CORRETAMENTE
             onSalvar: (novoProduto) => {
                 setProdutos(prevProdutos => [novoProduto, ...prevProdutos]);
             },
@@ -87,12 +80,12 @@ export default function ProdutosScreen({ navigation }: Props) {
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.subHeader}>Loja Principal</Text>
+                <Text style={styles.subHeader}>Catálogo de Produtos</Text>
                 <View style={styles.searchContainer}>
                     <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="Pesquisar por nome ou código..."
+                        placeholder="Pesquisar por nome..."
                         placeholderTextColor="#999"
                         value={searchText}
                         onChangeText={setSearchText}
@@ -108,18 +101,23 @@ export default function ProdutosScreen({ navigation }: Props) {
                             <View style={styles.produtoCard}>
                                 <View style={styles.produtoInfo}>
                                     <Text style={styles.produtoNome}>{item.nome}</Text>
-                                    <Text style={styles.produtoCodigo}>Cód: {item.codigo}</Text>
+                                    <Text style={styles.produtoDescricao} numberOfLines={2}>
+                                        {item.descricao || 'Sem descrição'}
+                                    </Text>
+                                    <View style={styles.valoresContainer}>
+                                        <Text style={styles.produtoValor}>
+                                            Compra: <Text style={styles.valorNumeroCompra}>R$ {item.valorCompra?.toFixed(2).replace('.', ',') || '0,00'}</Text>
+                                        </Text>
+                                        <Text style={styles.produtoValor}>
+                                            Venda: <Text style={styles.valorNumeroVenda}>R$ {item.valorVenda?.toFixed(2).replace('.', ',') || '0,00'}</Text>
+                                        </Text>
+                                    </View>
                                 </View>
-                                <Text style={[styles.produtoQuantidade, item.quantidade <= 10 && styles.lowQuantity]}>
-                                    {item.quantidade} un.
-                                </Text>
-                                <MaterialIcons name="edit" size={22} color="#116EB0" style={{ marginLeft: 15 }} />
+                                <MaterialIcons name="edit" size={24} color="#116EB0" style={{ marginLeft: 15 }} />
                             </View>
                         </TouchableOpacity>
                     )}
-                    ListEmptyComponent={
-                        <Text style={styles.emptyText}>Nenhum produto encontrado</Text>
-                    }
+                    ListEmptyComponent={<Text style={styles.emptyText}>Nenhum produto encontrado</Text>}
                 />
 
                 <TouchableOpacity style={styles.addButton} onPress={handleNovoProduto}>
@@ -140,12 +138,14 @@ const styles = StyleSheet.create({
     searchIcon: { marginRight: 10 },
     searchInput: { flex: 1, height: 45, color: '#333', fontSize: 16 },
     produtosContainer: { flex: 1, marginBottom: 20 },
-    produtoCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(17, 110, 176, 0.1)', borderRadius: 10, padding: 15, marginBottom: 10 },
+    produtoCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', borderRadius: 10, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: '#EEE' },
     produtoInfo: { flex: 1, marginRight: 10 },
-    produtoNome: { fontSize: 16, fontWeight: '600', color: '#2C3E50', marginBottom: 5 },
-    produtoCodigo: { fontSize: 14, color: '#566573' },
-    produtoQuantidade: { fontSize: 16, fontWeight: 'bold', color: '#116EB0', minWidth: 70, textAlign: 'right' },
-    lowQuantity: { color: '#E74C3C' },
+    produtoNome: { fontSize: 17, fontWeight: 'bold', color: '#2C3E50', marginBottom: 5 },
+    produtoDescricao: { fontSize: 14, color: '#7f8c8d', marginBottom: 10, fontStyle: 'italic' },
+    valoresContainer: { flexDirection: 'row', justifyContent: 'space-between' },
+    produtoValor: { fontSize: 14, color: '#566573' },
+    valorNumeroCompra: { fontWeight: '600', color: '#e74c3c' },
+    valorNumeroVenda: { fontWeight: '600', color: '#27ae60' },
     emptyText: { textAlign: 'center', color: '#566573', marginTop: 20, fontSize: 16 },
     addButton: { position: 'absolute', right: 20, bottom: 30, backgroundColor: '#116EB0', width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 5 },
 });
