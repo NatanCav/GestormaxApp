@@ -2,18 +2,65 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import api from '../../services/api'; // Certifique-se de que o caminho está correto
+// A importação do 'api' não é mais necessária para esta tela estática
+// import api from '../../services/api';
 
 // Importando os tipos que acabamos de criar/atualizar
-import { Movimentacao, MovimentacaoEntrada, MovimentacaoSaida, RootStackParamList } from '../../types';
+import { Movimentacao, RootStackParamList } from '../../types';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const gradientColors = ['#0C4B8E', '#116EB0'] as const;
 const solidBlue = '#116EB0';
 
-// Tipando as props do Card
+// --- 1. DADOS DE EXEMPLO (MOCK) ---
+// Esta lista agora serve como nossa fonte de dados estática.
+const DADOS_MOCK: Movimentacao[] = [
+  {
+    id_movimentacao: 1,
+    tipo: 'entrada',
+    data: '10/06/2024',
+    produtoNome: 'Vodka Smirnoff 1L',
+    fornecedorNome: 'Atacadão Bebidas',
+    quantidade: 50,
+    valorTotal: 1500.00,
+    observacao: 'Reposição para o fim de semana.'
+  },
+  {
+    id_movimentacao: 2,
+    tipo: 'saida',
+    data: '11/06/2024',
+    pedidoId: 'PED-2024-001',
+    clienteNome: 'Mercadinho do Bairro',
+    vendedorNome: 'Carlos Silva',
+    itensDescricao: ['Vodka Smirnoff (12 un)', 'Pitu (24 un)'],
+    valorTotal: 780.00,
+    observacao: 'Venda para revendedor.'
+  },
+  {
+    id_movimentacao: 3,
+    tipo: 'entrada',
+    data: '09/06/2024',
+    produtoNome: 'Whisky Jack Daniels 1L',
+    fornecedorNome: 'Importadora Rápida',
+    quantidade: 12,
+    valorTotal: 1200.00,
+    observacao: 'Compra de item premium.'
+  },
+   {
+    id_movimentacao: 4,
+    tipo: 'saida',
+    data: '10/06/2024',
+    pedidoId: 'PED-2024-002',
+    clienteNome: 'Joana Lima (Varejo)',
+    vendedorNome: 'Maria Souza',
+    itensDescricao: ['Whisky Jack Daniels (1 un)'],
+    valorTotal: 150.00,
+    observacao: 'Venda balcão.'
+  },
+];
+
+
 const MovimentacaoCard = ({ movimentacao, onPress }: { movimentacao: Movimentacao, onPress: () => void }) => {
-  // Usamos um "type guard" para o TypeScript saber qual tipo de movimentação estamos renderizando
   const ehEntrada = movimentacao.tipo === 'entrada';
 
   return (
@@ -30,7 +77,6 @@ const MovimentacaoCard = ({ movimentacao, onPress }: { movimentacao: Movimentaca
         </Text>
       </View>
 
-      {/* Renderização condicional com type guard */}
       {movimentacao.tipo === 'entrada' ? (
         <View style={styles.cardConteudo}>
           <Text style={styles.cardTituloProduto}>{movimentacao.produtoNome}</Text>
@@ -65,33 +111,21 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Movimentacoes'>;
 
 export default function MovimentacoesScreen({ navigation }: Props) {
   const [filtroSelecionado, setFiltroSelecionado] = useState<'entrada' | 'saida'>('entrada');
-  const [movimentacoes, setMovimentacoes] = useState<Movimentacao[]>([]);
+  
+  // 2. O ESTADO É INICIALIZADO DIRETAMENTE COM OS DADOS MOCKADOS
+  const [movimentacoes, setMovimentacoes] = useState<Movimentacao[]>(DADOS_MOCK);
   const [movimentacoesFiltradas, setMovimentacoesFiltradas] = useState<Movimentacao[]>([]);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      fetchMovimentacoes();
-    });
-    return unsubscribe;
-  }, [navigation]);
+  // O useEffect para buscar dados não é mais necessário
+  // useEffect(() => { ... fetchMovimentacoes ... });
 
+  // Este useEffect para filtrar os dados continua funcional
   useEffect(() => {
     const filtradas = movimentacoes.filter(m => m.tipo === filtroSelecionado)
       .sort((a, b) => new Date(b.data.split('/').reverse().join('-')).getTime() - new Date(a.data.split('/').reverse().join('-')).getTime());
     setMovimentacoesFiltradas(filtradas);
   }, [filtroSelecionado, movimentacoes]);
 
-  const fetchMovimentacoes = async () => {
-    try {
-      // --- ENDPOINT: GET /movimentacoes/consultar ---
-      // O backend deve retornar uma lista de objetos Movimentacao
-      const response = await api.get<Movimentacao[]>('/movimentacoes/consultar');
-      setMovimentacoes(response.data);
-    } catch (error) {
-      console.error("Erro ao buscar movimentações:", error);
-      Alert.alert("Erro", "Não foi possível carregar as movimentações.");
-    }
-  };
 
   const handleNovaMovimentacao = () => {
     navigation.navigate('CadastroMovimentacao', {

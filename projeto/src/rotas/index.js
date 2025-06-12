@@ -34,6 +34,8 @@ import CadastroUsuario from '../pages/CadastroUsuario';
 
 import RelatoriosScreen from '../pages/Relatorio';
 
+import EstoqueScreen from '../pages/Estoque';
+
 
 
 
@@ -248,6 +250,15 @@ options={{headerShown: false}}
 
 />
 
+<Stack.Screen
+
+name="Estoque"
+
+component={EstoqueScreen}
+
+options={{headerShown: false}}
+
+/>
 
 
 

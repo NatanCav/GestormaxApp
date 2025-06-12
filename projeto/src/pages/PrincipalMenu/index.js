@@ -1,58 +1,73 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, SafeAreaView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function MenuPrincipal({ navigation }) {
+  // Adicionado 'Estoque' à lista de itens do menu.
+  // Também adicionei uma propriedade 'route' para tornar a navegação mais explícita.
   const menuItems = [
-    { title: 'Clientes', icon: 'people' },
-    { title: 'Usuários', icon: 'person' },
-    { title: 'Fornecedores', icon: 'local-shipping' },
-    { title: 'Produtos', icon: 'shopping-basket' },
-    { title: 'Movimentações', icon: 'swap-horiz' },
-    { title: 'Relatórios', icon: 'assessment' },
+    { title: 'Clientes', icon: 'people', route: 'Clientes' },
+    { title: 'Usuários', icon: 'person', route: 'Usuários' }, 
+    { title: 'Fornecedores', icon: 'local-shipping', route: 'Fornecedores' },
+    { title: 'Produtos', icon: 'shopping-basket', route: 'Produtos' },
+    { title: 'Estoque', icon: 'inventory-2', route: 'Estoque' }, 
+    { title: 'Movimentações', icon: 'swap-horiz', route: 'Movimentações' },
+    { title: 'Relatórios', icon: 'assessment', route: 'Relatórios' }, 
   ];
 
-  const screenWidth = Dimensions.get('window').width;
-  const buttonSize = (screenWidth - 60) / 2;
+  const handleNavigation = (route) => {
+    // Verifica se a rota existe antes de navegar
+    if (route) {
+      navigation.navigate(route);
+    } else {
+      Alert.alert("Erro", "Rota de navegação não definida para este item.");
+    }
+  };
+
 
   return (
-    <LinearGradient
-      colors={['#0C4B8E', '#116EB0']}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
-      {/* Botão de Voltar no Header */}
-      <TouchableOpacity 
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
+    // SafeAreaView garante que o conteúdo não fique por baixo de áreas do sistema (ex: notch)
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0C4B8E' }}>
+      <LinearGradient
+        colors={['#0C4B8E', '#116EB0']}
+        style={styles.container}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
       >
-        <MaterialIcons name="arrow-back" size={30} color="white" />
-      </TouchableOpacity>
-
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.header}>Stock e Inventário</Text>
-          <Text style={styles.subHeader}>Loja Principal</Text>
-        </View>
-
-        <View style={styles.menuGrid}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuButton}
-              onPress={() => navigation.navigate(item.title)}
+        {/* Header agora está dentro do fluxo normal, para melhor controlo */}
+        <View style={styles.headerBar}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
             >
-              <View style={styles.iconCircle}>
-                <MaterialIcons name={item.icon} size={28} color="#116EB0" />
-              </View>
-              <Text style={styles.buttonText}>{item.title}</Text>
+              <MaterialIcons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
-          ))}
         </View>
-      </ScrollView>
-    </LinearGradient>
+
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.header}>Stock e Inventário</Text>
+            <Text style={styles.subHeader}>Loja Principal</Text>
+          </View>
+
+          <View style={styles.menuGrid}>
+            {menuItems.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.menuButton}
+                onPress={() => handleNavigation(item.route)} // Navega para a rota definida
+              >
+                <View style={styles.iconCircle}>
+                  <MaterialIcons name={item.icon} size={28} color="#116EB0" />
+                </View>
+                <Text style={styles.buttonText}>{item.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    </SafeAreaView>
   );
 }
 
@@ -60,23 +75,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerBar: {
+    paddingTop: Platform.OS === 'android' ? 15 : 0,
+    paddingHorizontal: 10,
+  },
   backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    zIndex: 1,
+    alignSelf: 'flex-start', // Alinha o botão à esquerda
     padding: 10,
   },
   scrollContainer: {
     flexGrow: 1,
-    padding: 20,
-    paddingTop: 60, // Espaço para o botão de voltar
+    paddingHorizontal: 20,
     paddingBottom: 40,
   },
   headerContainer: {
     alignItems: 'center',
     marginBottom: 30,
-    marginTop: 40,
+    marginTop: 20, // Ajustado o espaçamento
   },
   header: {
     fontSize: 28,
@@ -97,34 +112,32 @@ const styles = StyleSheet.create({
   menuGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around', // Garante espaçamento uniforme
   },
   menuButton: {
-    width: '48%',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 12,
+    width: '47%', // Ajustado para melhor espaçamento
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 15, // Mais arredondado
     padding: 20,
-    marginBottom: 15,
+    marginBottom: 20,
     alignItems: 'center',
-    elevation: 3,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
   },
   iconCircle: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'rgba(17, 110, 176, 0.1)', // Fundo azul claro para o ícone
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#2C3E50',
     textAlign: 'center',

@@ -10,22 +10,18 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 const gradientColors = ['#0C4B8E', '#116EB0'] as const;
 const solidBlue = '#116EB0';
 
-const UsuarioCard = ({ usuario, onEditPress, onDeletePress }: { usuario: Usuario, onEditPress: () => void, onDeletePress: () => void }) => {
+const UsuarioCard = ({ usuario, onEditPress }: { usuario: Usuario, onEditPress: () => void }) => {
   return (
-    <View style={styles.cardContainer}>
-        <TouchableOpacity style={styles.cardInfo} onPress={onEditPress}>
-            <Text style={styles.cardNome}>{usuario.nomeUsuario}</Text>
-            <Text style={styles.cardDetalheMenor}>{usuario.email}</Text>
-        </TouchableOpacity>
-        <View style={styles.cardActions}>
-            <TouchableOpacity onPress={onEditPress} style={styles.actionButton}>
-                <MaterialIcons name="edit" size={24} color={solidBlue} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onDeletePress} style={styles.actionButton}>
-                <MaterialIcons name="delete-outline" size={24} color="#e74c3c" />
-            </TouchableOpacity>
+    // O card inteiro é clicável para editar
+    <TouchableOpacity onPress={onEditPress}>
+        <View style={styles.cardContainer}>
+            <View style={styles.cardInfo}>
+                <Text style={styles.cardNome}>{usuario.nomeUsuario}</Text>
+                <Text style={styles.cardDetalheMenor}>{usuario.email}</Text>
+            </View>
+            <MaterialIcons name="edit" size={22} color={solidBlue} />
         </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -82,33 +78,21 @@ export default function UsuariosScreen({ navigation }: Props) {
             onSalvar: (usuarioAtualizado) => {
                 setUsuarios(prev => prev.map(u => (u.id_usuario === usuarioAtualizado.id_usuario ? usuarioAtualizado : u)));
             },
-            // onExcluir foi removido daqui
+            // Passando a função onExcluir para a tela de cadastro
+            onExcluir: (usuarioId) => {
+                setUsuarios(prev => prev.filter(u => u.id_usuario !== usuarioId));
+            },
         });
     };
 
-    const handleDeletarUsuario = (usuario: Usuario) => {
-        Alert.alert(
-            "Confirmar Exclusão", `Deseja realmente excluir o usuário "${usuario.nomeUsuario}"?`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                {
-                    text: "Excluir", style: "destructive",
-                    onPress: async () => {
-                        try {
-                            // CORREÇÃO: Usando 'id_usuario'
-                            await api.delete(`/usuarios/deletar/${usuario.id_usuario}`);
-                            setUsuarios(prev => prev.filter(u => u.id_usuario !== usuario.id_usuario));
-                            Alert.alert("Sucesso", "Usuário excluído.");
-                        } catch (error) {
-                            Alert.alert("Erro", "Não foi possível excluir o usuário.");
-                        }
-                    },
-                },
-            ]
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color={solidBlue} />
+                <Text>A carregar usuários...</Text>
+            </View>
         );
-    };
-
-    if (isLoading) { /* ... seu ecrã de loading ... */ }
+    }
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: gradientColors[0] }}>
@@ -122,7 +106,7 @@ export default function UsuariosScreen({ navigation }: Props) {
                 <View style={styles.contentArea}>
                     <View style={styles.searchSection}>
                         <MaterialIcons name="search" size={20} color="#666" style={{marginLeft: 10}}/>
-                        <TextInput style={styles.searchInput} placeholder="Pesquisar..." value={searchQuery} onChangeText={setSearchQuery} />
+                        <TextInput style={styles.searchInput} placeholder="Pesquisar por nome ou email..." value={searchQuery} onChangeText={setSearchQuery} />
                     </View>
 
                     <FlatList
@@ -131,10 +115,8 @@ export default function UsuariosScreen({ navigation }: Props) {
                             <UsuarioCard
                                 usuario={item}
                                 onEditPress={() => handleEditarUsuario(item)}
-                                onDeletePress={() => handleDeletarUsuario(item)}
                             />
                         )}
-                        // CORREÇÃO: Usando 'id_usuario'
                         keyExtractor={item => item.id_usuario.toString()}
                         ListEmptyComponent={<ListaVaziaComponente />}
                         contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -149,7 +131,6 @@ export default function UsuariosScreen({ navigation }: Props) {
     );
 }
 
-// Estilos...
 const styles = StyleSheet.create({
   containerGradient: { flex: 1 },
   headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 15, paddingTop: Platform.OS === 'android' ? 35 : 15, },
@@ -157,15 +138,13 @@ const styles = StyleSheet.create({
   contentArea: { flex: 1, backgroundColor: '#FFFFFF', borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 20, paddingTop: 20, },
   searchSection: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F5F5F5', borderRadius: 10, marginBottom: 20, },
   searchInput: { flex: 1, height: 45, fontSize: 16, color: '#333', paddingHorizontal: 15 },
-  cardContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(17, 110, 176, 0.08)', borderRadius: 10, paddingVertical: 15, paddingLeft: 15, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(17, 110, 176, 0.2)', },
-  cardInfo: { flex: 1, },
+  cardContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(17, 110, 176, 0.08)', borderRadius: 10, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(17, 110, 176, 0.2)', },
+  cardInfo: { flex: 1, marginRight: 10 },
   cardNome: { fontSize: 17, fontWeight: '600', color: '#2C3E50', marginBottom: 4, },
   cardDetalheMenor: { fontSize: 13, color: '#7f8c8d', },
-  cardActions: { flexDirection: 'row' },
-  actionButton: { padding: 10 },
   listaVaziaContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, },
   listaVaziaTexto: { marginTop: 20, fontSize: 18, fontWeight: 'bold', color: '#555555', textAlign: 'center', },
   listaVaziaSubtexto: { marginTop: 8, fontSize: 14, color: '#888888', textAlign: 'center', },
-  botaoAdicionar: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: solidBlue, borderRadius: 10, paddingVertical: 15, paddingHorizontal: 15, marginTop: 10, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5, },
+  botaoAdicionar: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: solidBlue, borderRadius: 10, paddingVertical: 15, marginTop: 10, marginBottom: 10, elevation: 5, },
   textoBotaoAdicionar: { color: 'white', fontSize: 16, fontWeight: '600', marginLeft: 10, },
 });

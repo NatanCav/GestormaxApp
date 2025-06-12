@@ -13,17 +13,16 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import api from '../../services/api';
 
-// 1. IMPORTANDO OS TIPOS
+// A importação do 'api' não é necessária para esta tela estática
+// import api from '../../services/api';
+
 import { Movimentacao, RootStackParamList } from '../../types';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-// Constantes de Cor
 const gradientColors = ['#0C4B8E', '#116EB0'] as const;
 const solidBlue = '#116EB0';
 
-// Funções de formatação de data
 const formatDate = (date: Date): string => {
   if (!date) return '';
   return new Intl.DateTimeFormat('pt-BR').format(date);
@@ -38,29 +37,26 @@ const parseDate = (strDate?: string): Date => {
   return new Date();
 };
 
-// 2. TIPANDO AS PROPS DO COMPONENTE
 type Props = NativeStackScreenProps<RootStackParamList, 'CadastroMovimentacao'>;
 
 export default function CadastroMovimentacaoScreen({ route, navigation }: Props) {
   const { movimentacaoExistente, onSalvar, onExcluir } = route.params || {};
   const isEditando = !!movimentacaoExistente;
 
-  // Estados dos campos
   const [tipoMovimentacao, setTipoMovimentacao] = useState<'entrada' | 'saida'>(
     movimentacaoExistente?.tipo || 'entrada'
   );
+
   const [dataMovimentacao, setDataMovimentacao] = useState(
     movimentacaoExistente?.data || formatDate(new Date())
   );
   const [valorTotal, setValorTotal] = useState(movimentacaoExistente?.valorTotal?.toString() || '');
   const [observacao, setObservacao] = useState(movimentacaoExistente?.observacao || '');
 
-  // Campos de Entrada
+  // A lógica para preencher os campos foi movida para o useEffect para maior clareza
   const [produtoNome, setProdutoNome] = useState('');
   const [fornecedorNome, setFornecedorNome] = useState('');
   const [quantidade, setQuantidade] = useState('');
-
-  // Campos de Saída
   const [pedidoId, setPedidoId] = useState('');
   const [clienteNome, setClienteNome] = useState('');
   const [vendedorNome, setVendedorNome] = useState('');
@@ -68,11 +64,11 @@ export default function CadastroMovimentacaoScreen({ route, navigation }: Props)
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+  const screenTitle = isEditando ? "Editar Movimentação" : "Nova Movimentação";
+
   // Efeito para preencher os campos no modo de edição
   useEffect(() => {
-    navigation.setOptions({ title: isEditando ? 'Editar Movimentação' : 'Nova Movimentação' });
-    
-    if (movimentacaoExistente) {
+    if (isEditando && movimentacaoExistente) {
       if (movimentacaoExistente.tipo === 'entrada') {
         setProdutoNome(movimentacaoExistente.produtoNome);
         setFornecedorNome(movimentacaoExistente.fornecedorNome);
@@ -84,73 +80,71 @@ export default function CadastroMovimentacaoScreen({ route, navigation }: Props)
         setItensDescricao(movimentacaoExistente.itensDescricao?.join(', ') || '');
       }
     }
-  }, [isEditando, movimentacaoExistente, navigation]);
+  }, [isEditando, movimentacaoExistente]);
 
-  const handleSalvar = async () => {
-    // --- CONSTRUINDO O PAYLOAD PARA O BACKEND ---
-    let dadosMovimentacao: Partial<Movimentacao>;
+
+  const handleSalvarMovimentacao = () => {
+    if (!dataMovimentacao) {
+      Alert.alert("Erro", "A data da movimentação é obrigatória.");
+      return;
+    }
+
+    let movimentacaoSalva;
 
     if (tipoMovimentacao === 'entrada') {
       if (!produtoNome || !fornecedorNome || !quantidade || !valorTotal) {
         Alert.alert("Atenção", "Para entradas, todos os campos são obrigatórios.");
         return;
       }
-      dadosMovimentacao = {
-        tipo: 'entrada', data: dataMovimentacao, valorTotal: parseFloat(valorTotal), observacao,
-        produtoNome, fornecedorNome, quantidade: parseInt(quantidade)
+      movimentacaoSalva = {
+        id_movimentacao: isEditando ? movimentacaoExistente.id_movimentacao : Date.now(),
+        tipo: 'entrada',
+        data: dataMovimentacao,
+        valorTotal: parseFloat(valorTotal.replace(',', '.')) || 0,
+        observacao,
+        produtoNome,
+        fornecedorNome,
+        quantidade: parseInt(quantidade) || 0,
       };
     } else { // Saída
       if (!pedidoId || !clienteNome || !vendedorNome || !valorTotal) {
         Alert.alert("Atenção", "Para saídas, todos os campos são obrigatórios.");
         return;
       }
-      dadosMovimentacao = {
-        tipo: 'saida', data: dataMovimentacao, valorTotal: parseFloat(valorTotal), observacao,
-        pedidoId, clienteNome, vendedorNome, itensDescricao: itensDescricao.split(',').map(item => item.trim())
+      movimentacaoSalva = {
+        id_movimentacao: isEditando ? movimentacaoExistente.id_movimentacao : Date.now(),
+        tipo: 'saida',
+        data: dataMovimentacao,
+        valorTotal: parseFloat(valorTotal.replace(',', '.')) || 0,
+        observacao,
+        pedidoId,
+        clienteNome,
+        vendedorNome,
+        itensDescricao: itensDescricao.split(',').map(item => item.trim()),
       };
     }
 
-    try {
-      let movimentacaoSalva: Movimentacao;
-      if (isEditando) {
-        // --- ENDPOINT: PUT /movimentacoes/editar/:id ---
-        const response = await api.put<Movimentacao>(`/movimentacoes/editar/${movimentacaoExistente.id_movimentacao}`, dadosMovimentacao);
-        movimentacaoSalva = response.data;
-      } else {
-        // --- ENDPOINT: POST /movimentacoes/cadastrar ---
-        const response = await api.post<Movimentacao>('/movimentacoes/cadastrar', dadosMovimentacao);
-        movimentacaoSalva = response.data;
-      }
-
-      if (typeof onSalvar === 'function') {
-        onSalvar(movimentacaoSalva);
-      }
-      navigation.goBack();
-    } catch (error) {
-      console.error("Erro ao salvar movimentação:", error);
-      Alert.alert("Erro", "Não foi possível salvar a movimentação.");
+    if (typeof onSalvar === 'function') {
+      onSalvar(movimentacaoSalva);
     }
+    Alert.alert("Sucesso", "Movimentação salva localmente.");
+    navigation.goBack();
   };
 
   const handleExcluir = () => {
     if (!isEditando) return;
-    Alert.alert("Confirmar Exclusão", "Deseja realmente excluir esta movimentação?",
+    Alert.alert(
+      "Confirmar Exclusão", "Deseja realmente excluir esta movimentação?",
       [
         { text: "Cancelar", style: "cancel" },
         {
           text: "Excluir", style: "destructive",
-          onPress: async () => {
-            try {
-              // --- ENDPOINT: DELETE /movimentacoes/deletar/:id ---
-              await api.delete(`/movimentacoes/deletar/${movimentacaoExistente.id_movimentacao}`);
-              if (typeof onExcluir === 'function') {
-                onExcluir(movimentacaoExistente.id_movimentacao);
-              }
-              navigation.goBack();
-            } catch (error) {
-              console.error("Erro ao excluir movimentação:", error);
-              Alert.alert("Erro", "Não foi possível excluir a movimentação.");
+          onPress: () => {
+            if (typeof onExcluir === 'function') {
+              onExcluir(movimentacaoExistente.id_movimentacao);
             }
+            Alert.alert("Sucesso", "Movimentação excluída localmente.");
+            navigation.goBack();
           },
         },
       ]
@@ -158,22 +152,28 @@ export default function CadastroMovimentacaoScreen({ route, navigation }: Props)
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <LinearGradient colors={gradientColors} style={styles.headerContainer}>
+    <SafeAreaView style={styles.safeArea}>
+      <LinearGradient
+        colors={gradientColors}
+        style={styles.headerContainer}
+      >
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back" size={28} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitulo}>{isEditando ? 'Editar Movimentação' : 'Nova Movimentação'}</Text>
-        <TouchableOpacity onPress={handleSalvar}>
-            <MaterialIcons name="save" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
+        <Text style={styles.headerTitulo}>{screenTitle}</Text>
+        {/* Espaçador para manter o título centralizado */}
+        <View style={{ width: 28 }} />
       </LinearGradient>
       
-      <ScrollView style={styles.contentArea} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView 
+        style={styles.contentArea} 
+        contentContainerStyle={{ paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.tipoMovimentacaoContainer}>
             <TouchableOpacity
               style={[styles.botaoTipo, tipoMovimentacao === 'entrada' && styles.botaoTipoAtivo]}
-              onPress={() => !isEditando && setTipoMovimentacao('entrada')} // Só permite mudar se for novo cadastro
+              onPress={() => !isEditando && setTipoMovimentacao('entrada')}
               disabled={isEditando}
             >
               <MaterialIcons name="arrow-downward" size={20} color={tipoMovimentacao === 'entrada' ? '#FFFFFF' : solidBlue} />
@@ -189,13 +189,20 @@ export default function CadastroMovimentacaoScreen({ route, navigation }: Props)
             </TouchableOpacity>
         </View>
 
-        {/* --- Formulário Dinâmico --- */}
         <Text style={styles.labelCampo}>Data da Movimentação*</Text>
         <TouchableOpacity onPress={() => setDatePickerVisibility(true)} style={styles.inputDate}>
            <Text style={styles.inputTextDateValue}>{dataMovimentacao}</Text>
            <MaterialIcons name="calendar-today" size={20} color="#555" />
         </TouchableOpacity>
-        <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" date={parseDate(dataMovimentacao)} onConfirm={(d) => { setDataMovimentacao(formatDate(d)); setDatePickerVisibility(false); }} onCancel={() => setDatePickerVisibility(false)} />
+
+        <DateTimePickerModal
+            locale="pt-BR"
+            isVisible={isDatePickerVisible}
+            mode="date"
+            date={parseDate(dataMovimentacao)}
+            onConfirm={(d) => { setDataMovimentacao(formatDate(d)); setDatePickerVisibility(false); }}
+            onCancel={() => setDatePickerVisibility(false)}
+        />
         
         {tipoMovimentacao === 'entrada' ? (
           <>
@@ -224,6 +231,12 @@ export default function CadastroMovimentacaoScreen({ route, navigation }: Props)
         <Text style={styles.labelCampo}>Observações</Text>
         <TextInput style={[styles.input, {height: 100}]} multiline placeholder="Alguma observação adicional..." value={observacao} onChangeText={setObservacao} />
         
+        {/* Botão de Salvar na parte inferior */}
+        <TouchableOpacity style={styles.botaoSalvar} onPress={handleSalvarMovimentacao}>
+          <MaterialIcons name="save" size={22} color="white" style={{marginRight: 10}}/>
+          <Text style={styles.textoBotaoSalvar}>Salvar Movimentação</Text>
+        </TouchableOpacity>
+        
         {isEditando && (
           <TouchableOpacity style={styles.botaoExcluir} onPress={handleExcluir}>
             <MaterialIcons name="delete-forever" size={22} color="white" />
@@ -249,6 +262,21 @@ const styles = StyleSheet.create({
   input: { backgroundColor: '#F5F5F5', borderRadius: 10, paddingHorizontal: 15, paddingVertical: Platform.OS === 'ios' ? 15 : 12, fontSize: 16, color: '#333', borderWidth: 1, borderColor: '#E0E0E0', marginBottom: 10 },
   inputDate: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F5F5F5', borderRadius: 10, paddingHorizontal: 15, paddingVertical: Platform.OS === 'ios' ? 15 : 12, borderWidth: 1, borderColor: '#E0E0E0', marginBottom: 10 },
   inputTextDateValue: { fontSize: 16, color: '#333' },
-  botaoExcluir: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#e74c3c', borderRadius: 10, paddingVertical: 15, marginTop: 20 },
+  botaoSalvar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#27ae60',
+    borderRadius: 10,
+    paddingVertical: 16,
+    marginTop: 20,
+    elevation: 3,
+  },
+  textoBotaoSalvar: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  botaoExcluir: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#e74c3c', borderRadius: 10, paddingVertical: 15, marginTop: 15 },
   textoBotaoExcluir: { color: 'white', fontSize: 16, fontWeight: 'bold', marginLeft: 8 },
 });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Alert, KeyboardAvoidingView, Platform, Modal } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import api from '../../services/api';
@@ -23,6 +23,9 @@ export default function CadastroProduto({ navigation, route }: Props) {
     const [valorVenda, setValorVenda] = useState(produtoExistente?.valorVenda?.toString() || '');
     const [tamanho, setTamanho] = useState(produtoExistente?.tamanho || '');
     const [cor, setCor] = useState(produtoExistente?.cor || '');
+    
+    // 1. ESTADO PARA CONTROLAR A VISIBILIDADE DO MODAL
+    const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
 
     useEffect(() => {
         navigation.setOptions({
@@ -36,7 +39,6 @@ export default function CadastroProduto({ navigation, route }: Props) {
             return;
         }
 
-        // Objeto de dados sem código e quantidade
         const dadosProduto: Partial<Produto> = {
             nome, descricao, tamanho, cor,
             valorCompra: parseFloat(valorCompra.replace(',', '.')) || 0,
@@ -68,10 +70,62 @@ export default function CadastroProduto({ navigation, route }: Props) {
         }
     };
 
-    const handleExcluir = () => { /* ... mesma lógica de antes ... */ };
+    // 2. handleExcluir AGORA APENAS ABRE O MODAL
+    const handleExcluir = () => {
+        if (!isEditando) return;
+        setDeleteModalVisible(true);
+    };
+
+    // 3. NOVA FUNÇÃO PARA REALMENTE EXECUTAR A EXCLUSÃO
+    const confirmarExclusao = async () => {
+        if (!isEditando) return;
+        try {
+            await api.delete(`/produtos/deletar/${produtoExistente.id_produto}`);
+            if (typeof onExcluir === 'function') {
+                onExcluir(produtoExistente.id_produto);
+            }
+            setDeleteModalVisible(false);
+            navigation.goBack();
+        } catch (error) {
+            console.error("Erro ao excluir produto:", error);
+            setDeleteModalVisible(false);
+            Alert.alert("Erro", "Não foi possível excluir o produto.");
+        }
+    };
 
     return (
         <SafeAreaView style={stylesCadastro.safeArea}>
+            {/* 4. JSX DO MODAL ADICIONADO À TELA */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={isDeleteModalVisible}
+                onRequestClose={() => setDeleteModalVisible(false)}
+            >
+                <View style={stylesCadastro.modalOverlay}>
+                    <View style={stylesCadastro.modalView}>
+                        <Text style={stylesCadastro.modalTitle}>Confirmar Exclusão</Text>
+                        <Text style={stylesCadastro.modalText}>
+                            Deseja realmente excluir o produto "{nome}"?
+                        </Text>
+                        <View style={stylesCadastro.modalButtonContainer}>
+                            <TouchableOpacity
+                                style={[stylesCadastro.modalButton, stylesCadastro.modalButtonCancel]}
+                                onPress={() => setDeleteModalVisible(false)}
+                            >
+                                <Text style={stylesCadastro.modalButtonTextCancel}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[stylesCadastro.modalButton, stylesCadastro.modalButtonDelete]}
+                                onPress={confirmarExclusao}
+                            >
+                                <Text style={stylesCadastro.modalButtonTextDelete}>Excluir</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
             <LinearGradient colors={gradientColors} style={stylesCadastro.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={30} color="#FFFFFF" />
@@ -147,4 +201,64 @@ const stylesCadastro = StyleSheet.create({
     saveButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
     deleteButton: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#e74c3c', padding: 16, borderRadius: 10, marginTop: 15 },
     deleteButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
+    // --- 5. ESTILOS PARA O MODAL ---
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        width: '85%',
+        backgroundColor: 'white',
+        borderRadius: 15,
+        padding: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#333'
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 25,
+        textAlign: 'center',
+        color: '#555',
+        lineHeight: 22,
+    },
+    modalButtonContainer: {
+        flexDirection: 'row',
+        width: '100%',
+    },
+    modalButton: {
+        borderRadius: 10,
+        paddingVertical: 12,
+        flex: 1,
+        alignItems: 'center',
+    },
+    modalButtonCancel: {
+        backgroundColor: '#f0f0f0',
+        marginRight: 10,
+    },
+    modalButtonDelete: {
+        backgroundColor: '#e74c3c',
+        marginLeft: 10,
+    },
+    modalButtonTextCancel: {
+        color: '#333',
+        fontWeight: 'bold',
+        fontSize: 16
+    },
+    modalButtonTextDelete: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16
+    }
 });

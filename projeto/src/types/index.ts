@@ -263,11 +263,9 @@ onExcluir?: (id: number) => void;
 Usuarios: undefined;
 
 CadastroUsuario: {
-
-usuarioExistente?: Usuario;
-
-onSalvar: (usuario: Usuario) => void;
-
-};
+    usuarioExistente?: Usuario;
+    onSalvar: (usuario: Usuario) => void;
+    onExcluir?: (id: number) => void;
+  };
 
 };
